@@ -187,9 +187,9 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { Location, Warning, VideoCamera, View, Plus } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
-import { Chart, registerables } from 'chart.js'
 
-Chart.register(...registerables)
+// 使用全局的 Chart.js (通过 CDN 加载)
+const Chart = (window as any).Chart
 
 interface Station {
   id: string
