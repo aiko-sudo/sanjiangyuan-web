@@ -324,11 +324,11 @@ const craftsmen = ref<Craftsman[]>([
 ])
 
 const skillRankings = ref([
-  { id: '1', name: '唐卡绘制', count: 5678, percentage: 85, color: '#E6A23C' },
-  { id: '2', name: '氆氇编织', count: 4321, percentage: 65, color: '#409EFF' },
-  { id: '3', name: '堆绣工艺', count: 3456, percentage: 52, color: '#67C23A' },
-  { id: '4', name: '藏香制作', count: 2345, percentage: 35, color: '#909399' },
-  { id: '5', name: '藏装制作', count: 1890, percentage: 28, color: '#F56C6C' }
+  { id: '1', name: '唐卡绘制', count: 5678, percentage: 85, color: 'var(--accent-color)' },
+  { id: '2', name: '氆氇编织', count: 4321, percentage: 65, color: 'var(--secondary-color)' },
+  { id: '3', name: '堆绣工艺', count: 3456, percentage: 52, color: 'var(--primary-color)' },
+  { id: '4', name: '藏香制作', count: 2345, percentage: 35, color: 'var(--tertiary-color)' },
+  { id: '5', name: '藏装制作', count: 1890, percentage: 28, color: 'var(--accent-dark)' }
 ])
 
 const activeFilter = ref('all')
@@ -381,19 +381,19 @@ function confirmLearning() {
 }
 
 .page-header {
-  background: linear-gradient(135deg, #1a3a5c 0%, #2d5a87 100%);
+  background: var(--gradient-primary);
   color: #fff;
   padding: 60px 20px;
   text-align: center;
-  
+
   h1 {
     font-size: 36px;
     margin-bottom: 12px;
   }
-  
+
   p {
     font-size: 16px;
-    opacity: 0.9;
+    opacity: 0.95;
   }
 }
 
@@ -423,19 +423,163 @@ function confirmLearning() {
 }
 
 .craftsman-card {
-  background: #fff;
+  background: var(--bg-white);
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 16px var(--shadow-color);
   cursor: pointer;
   transition: all 0.3s ease;
-  
+
   &:hover {
     transform: translateY(-8px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-    
+    box-shadow: 0 12px 40px var(--shadow-color);
+
     .card-overlay {
       opacity: 1;
+    }
+  }
+
+  .card-image {
+    position: relative;
+    aspect-ratio: 1;
+    overflow: hidden;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .card-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--primary-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+
+      span {
+        color: #fff;
+        font-size: 16px;
+        font-weight: 600;
+      }
+    }
+
+    .guardian-badge {
+      position: absolute;
+      bottom: 12px;
+      right: 12px;
+      background: var(--bg-dark-overlay);
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      backdrop-filter: blur(4px);
+    }
+  }
+
+  .card-info {
+    padding: 16px;
+    text-align: center;
+
+    h3 {
+      font-size: 18px;
+      margin-bottom: 12px;
+      color: var(--text-primary);
+    }
+
+    .skill-tags {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+  }
+}
+
+.ranking-section {
+  background: var(--bg-white);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 16px var(--shadow-color);
+
+  h2 {
+    font-size: 20px;
+    margin-bottom: 20px;
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+
+  .ranking-list {
+    .ranking-item {
+      display: flex;
+      align-items: center;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border-light);
+      transition: all 0.3s ease;
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      &:hover {
+        transform: translateX(4px);
+      }
+
+      .rank-num {
+        width: 32px;
+        height: 32px;
+        background: var(--gradient-accent);
+        color: #fff;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 700;
+        margin-right: 14px;
+        box-shadow: 0 2px 8px rgba(212, 168, 75, 0.3);
+      }
+
+      &:nth-child(1) .rank-num {
+        background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+      }
+
+      &:nth-child(2) .rank-num {
+        background: linear-gradient(135deg, #C0C0C0 0%, #A9A9A9 100%);
+      }
+
+      &:nth-child(3) .rank-num {
+        background: linear-gradient(135deg, #CD7F32 0%, #B8860B 100%);
+      }
+
+      .rank-info {
+        flex: 1;
+
+        .rank-name {
+          font-size: 15px;
+          font-weight: 600;
+          color: var(--text-primary);
+          margin-bottom: 4px;
+        }
+
+        .rank-detail {
+          font-size: 12px;
+          color: var(--text-muted);
+        }
+      }
+
+      .rank-value {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--primary-color);
+      }
     }
   }
   
@@ -506,59 +650,69 @@ function confirmLearning() {
 }
 
 .ranking-section {
-  background: #fff;
+  background: var(--bg-white);
   border-radius: 16px;
   padding: 24px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-  
+  box-shadow: 0 4px 16px var(--shadow-color);
+
   h2 {
     font-size: 20px;
     margin-bottom: 20px;
     color: var(--text-primary);
+    font-weight: 600;
   }
-  
+
   .ranking-list {
     .ranking-item {
       display: flex;
       align-items: center;
-      padding: 12px 0;
-      border-bottom: 1px solid #f0f0f0;
-      
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border-light);
+      transition: all 0.3s ease;
+
       &:last-child {
         border-bottom: none;
       }
-      
+
+      &:hover {
+        transform: translateX(4px);
+      }
+
       .rank-num {
-        width: 28px;
-        height: 28px;
-        background: #f0f0f0;
+        width: 32px;
+        height: 32px;
+        background: var(--bg-secondary);
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-weight: 600;
-        margin-right: 12px;
-        
+        font-weight: 700;
+        margin-right: 14px;
+        color: var(--text-secondary);
+
         &.top-three {
           background: var(--accent-color);
           color: #fff;
+          box-shadow: 0 2px 8px rgba(212, 168, 75, 0.3);
         }
       }
-      
+
       .skill-name {
         width: 100px;
         font-size: 14px;
         color: var(--text-primary);
+        font-weight: 500;
       }
-      
+
       .skill-progress {
         flex: 1;
         margin: 0 16px;
       }
-      
+
       .skill-count {
         font-size: 12px;
         color: var(--text-muted);
+        font-weight: 500;
       }
     }
   }
@@ -622,7 +776,7 @@ function confirmLearning() {
     gap: 12px;
     margin-bottom: 32px;
     padding-bottom: 24px;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid var(--border-light);
   }
   
   .activity-section,
@@ -658,7 +812,7 @@ function confirmLearning() {
           left: 4px;
           width: 2px;
           height: calc(100% + 20px);
-          background: #f0f0f0;
+          background: var(--bg-secondary);
         }
         
         &:last-child::after {
@@ -688,7 +842,7 @@ function confirmLearning() {
     gap: 16px;
     
     .skill-step-card {
-      background: #f5f7fa;
+      background: var(--bg-primary);
       border-radius: 12px;
       padding: 16px;
       position: relative;
@@ -759,7 +913,7 @@ function confirmLearning() {
   .cost-info {
     margin-top: 16px;
     padding: 12px;
-    background: #f5f7fa;
+    background: var(--bg-primary);
     border-radius: 8px;
     
     strong {

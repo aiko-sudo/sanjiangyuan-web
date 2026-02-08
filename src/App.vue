@@ -90,21 +90,41 @@ const isHome = computed(() => route.path === '/')
   left: 0;
   right: 0;
   z-index: 1000;
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--bg-overlay);
   backdrop-filter: blur(10px);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 12px var(--shadow-color);
   transition: all 0.3s ease;
-  
+
   &.navbar-transparent {
-    background: transparent;
-    box-shadow: none;
-    
+    background: var(--bg-dark-overlay);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.25);
+
     .nav-item {
-      color: #fff;
+      color: #ffffff;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+
+      &:hover,
+      &.active {
+        color: var(--secondary-light);
+
+        &::after {
+          background: var(--secondary-light);
+        }
+      }
     }
-    
+
     .logo-text {
-      color: #fff;
+      color: #ffffff;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+    }
+
+    .el-button {
+      --el-button-bg-color: rgba(45, 106, 79, 0.95);
+      --el-button-border-color: transparent;
+      --el-button-hover-bg-color: var(--primary-light);
+      --el-button-hover-border-color: transparent;
+      color: #ffffff;
     }
   }
 }
@@ -123,45 +143,47 @@ const isHome = computed(() => route.path === '/')
   display: flex;
   align-items: center;
   gap: 12px;
-  
+
   .logo-icon {
     font-size: 32px;
   }
-  
+
   .logo-text {
     font-size: 20px;
     font-weight: 600;
     color: var(--primary-color);
+    text-shadow: 0 1px 2px rgba(45, 106, 79, 0.15);
   }
 }
 
 .nav-links {
   display: flex;
   gap: 40px;
-  
+
   .nav-item {
     font-size: 16px;
     font-weight: 500;
     color: var(--text-primary);
     padding: 8px 0;
     position: relative;
-    transition: color 0.3s ease;
-    
+    transition: all 0.3s ease;
+
     &::after {
       content: '';
       position: absolute;
       bottom: 0;
       left: 0;
       width: 0;
-      height: 2px;
+      height: 3px;
       background: var(--primary-color);
+      border-radius: 2px;
       transition: width 0.3s ease;
     }
-    
+
     &:hover,
     &.active {
       color: var(--primary-color);
-      
+
       &::after {
         width: 100%;
       }
@@ -180,7 +202,7 @@ const isHome = computed(() => route.path === '/')
 }
 
 .footer {
-  background: #1a1a2e;
+  background: linear-gradient(180deg, var(--primary-dark) 0%, #0D1F17 100%);
   color: #fff;
   padding: 60px 0 0;
 }
@@ -199,28 +221,33 @@ const isHome = computed(() => route.path === '/')
     font-size: 18px;
     margin-bottom: 20px;
     color: var(--accent-color);
+    text-shadow: 0 1px 2px rgba(212, 168, 75, 0.3);
   }
-  
+
   p,
   a {
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(255, 255, 255, 0.75);
     line-height: 2;
     display: block;
-    
+    transition: all 0.3s ease;
+
     &:hover {
-      color: #fff;
+      color: #ffffff;
+      transform: translateX(4px);
     }
   }
 }
 
 .footer-bottom {
   margin-top: 40px;
-  padding: 20px;
+  padding: 24px 20px;
   text-align: center;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.2);
+
   p {
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 13px;
   }
 }
 
@@ -240,9 +267,17 @@ const isHome = computed(() => route.path === '/')
   .nav-links {
     display: none;
   }
-  
+
   .footer-content {
     grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .footer-section p,
+  .footer-section a {
+    &:hover {
+      transform: none;
+    }
   }
 }
 </style>

@@ -305,9 +305,9 @@ function shareInvite() {
 
 .profile-header {
   position: relative;
-  background: linear-gradient(135deg, #1e5a3a 0%, #2d8a5e 50%, #1e9a5f 100%);
+  background: var(--gradient-primary);
   padding: 60px 20px 100px;
-  
+
   .header-bg {
     position: absolute;
     top: 0;
@@ -315,9 +315,9 @@ function shareInvite() {
     right: 0;
     bottom: 0;
     background: url('https://images.unsplash.com/photo-1575550959106-5a7defe28b56?w=1200') center/cover;
-    opacity: 0.2;
+    opacity: 0.15;
   }
-  
+
   .header-content {
     position: relative;
     max-width: 1000px;
@@ -326,40 +326,43 @@ function shareInvite() {
     align-items: flex-end;
     gap: 24px;
   }
-  
+
   .user-avatar-wrapper {
     position: relative;
-    
+
     .user-avatar {
       border: 4px solid #fff;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
     }
-    
+
     .edit-avatar-btn {
       position: absolute;
       bottom: 0;
       right: 0;
       padding: 8px;
       border-radius: 50%;
+      background: var(--primary-color);
+      color: #fff;
     }
   }
-  
+
   .user-info {
     flex: 1;
     color: #fff;
-    
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+
     h1 {
       font-size: 28px;
       margin-bottom: 8px;
     }
-    
+
     .level-badge {
       margin-bottom: 8px;
     }
-    
+
     .user-intro {
       font-size: 14px;
-      opacity: 0.9;
+      opacity: 0.95;
     }
   }
 }
@@ -376,51 +379,53 @@ function shareInvite() {
 
 .user-stats-sidebar {
   .card {
-    background: #fff;
+    background: var(--bg-white);
     border-radius: 16px;
-    padding: 20px;
+    padding: 24px;
     margin-bottom: 20px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-    
+    box-shadow: 0 4px 16px var(--shadow-color);
+    border: 1px solid var(--border-light);
+
     h3 {
       font-size: 16px;
       margin-bottom: 16px;
       color: var(--text-primary);
+      font-weight: 600;
     }
   }
-  
+
   .stats-grid {
     .stat-item {
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 12px 0;
-      border-bottom: 1px solid #f0f0f0;
-      
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border-light);
+
       &:last-child {
         border-bottom: none;
       }
-      
+
       .stat-icon {
         width: 40px;
         height: 40px;
-        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-        border-radius: 10px;
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #fff;
-        font-size: 20px;
+        background: var(--bg-secondary);
+        color: var(--primary-color);
       }
-      
-      .stat-content {
+
+      .stat-info {
+        flex: 1;
+
         .stat-value {
-          display: block;
           font-size: 20px;
-          font-weight: 700;
-          color: var(--primary-color);
+          font-weight: 600;
+          color: var(--text-primary);
         }
-        
+
         .stat-label {
           font-size: 12px;
           color: var(--text-muted);
@@ -428,7 +433,75 @@ function shareInvite() {
       }
     }
   }
-  
+
+  .contribution-chart {
+    margin-top: 24px;
+
+    h4 {
+      font-size: 14px;
+      margin-bottom: 16px;
+      color: var(--text-secondary);
+    }
+
+    .chart-wrapper {
+      height: 150px;
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+    }
+  }
+
+  .stats-grid {
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border-light);
+      transition: all 0.3s ease;
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      &:hover {
+        transform: translateX(4px);
+      }
+
+      .stat-icon {
+        width: 44px;
+        height: 44px;
+        background: var(--gradient-primary);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 20px;
+        box-shadow: 0 4px 12px rgba(45, 106, 79, 0.3);
+      }
+
+      .stat-content {
+        flex: 1;
+
+        .stat-value {
+          display: block;
+          font-size: 20px;
+          font-weight: 700;
+          color: var(--text-primary);
+        }
+
+        .stat-label {
+          font-size: 12px;
+          color: var(--text-muted);
+        }
+      }
+    }
+  }
+
   .calendar-card {
     :deep(.el-calendar) {
       .el-calendar-table {
@@ -478,7 +551,7 @@ function shareInvite() {
   padding-bottom: 60px;
   
   section {
-    background: #fff;
+    background: var(--bg-white);
     border-radius: 16px;
     padding: 24px;
     margin-bottom: 20px;
@@ -546,7 +619,7 @@ function shareInvite() {
         display: flex;
         gap: 16px;
         padding: 16px 0;
-        border-bottom: 1px solid #f0f0f0;
+        border-bottom: 1px solid var(--border-light);
         
         &:last-child {
           border-bottom: none;
@@ -567,7 +640,7 @@ function shareInvite() {
             left: 4px;
             width: 2px;
             height: calc(100% + 20px);
-            background: #f0f0f0;
+            background: var(--bg-secondary);
           }
           
           &:last-child::after {
@@ -614,7 +687,7 @@ function shareInvite() {
         display: flex;
         gap: 16px;
         padding: 16px 0;
-        border-bottom: 1px solid #f0f0f0;
+        border-bottom: 1px solid var(--border-light);
         
         &:last-child {
           border-bottom: none;
@@ -687,7 +760,7 @@ function shareInvite() {
         justify-content: space-between;
         align-items: center;
         padding: 16px 0;
-        border-bottom: 1px solid #f0f0f0;
+        border-bottom: 1px solid var(--border-light);
         
         &:last-child {
           border-bottom: none;
