@@ -1,14 +1,58 @@
+/* ================================================
+   三江源生态保护网站 - 配色方案
+   设计理念：高原生态、雪山水源、藏族文化
+   ================================================ */
+
 :root {
-  --primary-color: #1e9a5f;
-  --secondary-color: #2db872;
-  --accent-color: #d4af37;
-  --danger-color: #e54d42;
-  --text-primary: #333;
-  --text-secondary: #666;
-  --text-muted: #999;
-  --bg-primary: #f5f7fa;
-  --bg-white: #ffffff;
-  --border-color: #e4e7ed;
+  /* 主色系 - 高原生态绿 */
+  --primary-color: #2D6A4F;       /* 深邃森林绿 - 主要按钮、链接、强调 */
+  --primary-light: #52B788;        /* 柔和草甸绿 - 悬停状态、渐变 */
+  --primary-dark: #1B4332;         /* 深山森林绿 - 暗色背景、阴影 */
+
+  /* 次色系 - 天空与水源蓝 */
+  --secondary-color: #4A90A4;      /* 高原天空蓝 - 次要操作、数据展示 */
+  --secondary-light: #7BC4D4;      /* 湖泊冰川蓝 - 浅色背景、悬停 */
+  --secondary-dark: #2C6E80;       /* 江河深蓝 - 深色背景、强调 */
+
+  /* 强调色系 - 阳光与文化金 */
+  --accent-color: #D4A84B;         /* 高原阳光金 - 徽章、荣誉、特别强调 */
+  --accent-light: #E8C972;         /* 金穗色 - 悬停、渐变 */
+  --accent-dark: #B8922E;           /* 古铜色 - 暗色背景 */
+
+  /* 辅助色 - 藏族文化红 */
+  --tertiary-color: #C23B22;       /* 藏族红 - 文化元素、重要提醒 */
+
+  /* 功能色 */
+  --danger-color: #D64545;         /* 警示红 - 错误、危险 */
+  --success-color: #2D8F6F;       /* 成功绿 - 成功状态 */
+  --warning-color: #E8B732;       /* 提示黄 - 警告、注意 */
+  --info-color: #4A90A4;          /* 信息蓝 - 信息提示 */
+
+  /* 文字颜色 */
+  --text-primary: #1A1A2E;         /* 墨色 - 主要文字，高对比度 */
+  --text-secondary: #4A4A68;       /* 灰紫 - 次要文字 */
+  --text-muted: #8888A0;          /* 灰色 - 弱化文字、提示 */
+
+  /* 背景颜色 */
+  --bg-primary: #F0F4F3;          /* 清新绿灰 - 主要背景 */
+  --bg-secondary: #E2E8E5;         /* 淡绿灰 - 次要背景、分隔 */
+  --bg-white: #FFFFFF;            /* 纯白 - 卡片、弹窗 */
+  --bg-overlay: rgba(255, 255, 255, 0.95);  /* 白色遮罩 */
+  --bg-dark-overlay: rgba(26, 26, 46, 0.9); /* 深色遮罩 */
+
+  /* 边框颜色 */
+  --border-color: #D8DDE6;        /* 轻盈灰蓝 - 边框、分隔线 */
+  --border-light: #E8ECF1;        /* 浅色边框 */
+
+  /* 阴影颜色 */
+  --shadow-color: rgba(45, 106, 79, 0.12);   /* 绿色调阴影 */
+  --shadow-dark: rgba(26, 26, 46, 0.15);      /* 深色阴影 */
+
+  /* 渐变定义 */
+  --gradient-primary: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+  --gradient-secondary: linear-gradient(135deg, var(--secondary-color) 0%, var(--secondary-light) 100%);
+  --gradient-accent: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-light) 100%);
+  --gradient-hero: linear-gradient(180deg, rgba(45, 106, 79, 0.3) 0%, rgba(26, 26, 46, 0.8) 100%);
 }
 
 * {
@@ -22,9 +66,18 @@ html, body {
   font-size: 14px;
   line-height: 1.6;
   color: var(--text-primary);
-  background-color: var(--bg-primary);
+  background-color: #E8F0EC !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+#app, #app > div {
+  background-color: #E8F0EC !important;
+}
+
+/* 覆盖 Element Plus 组件库可能设置的白色背景 */
+.el-card, .el-button, .el-input__wrapper, .el-select .el-input__wrapper {
+  background-color: inherit !important;
 }
 
 a {
@@ -71,24 +124,33 @@ img {
 
 .card {
   background: var(--bg-white);
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 16px var(--shadow-color);
+  border: 1px solid var(--border-light);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 32px var(--shadow-color);
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  background: var(--gradient-primary);
   color: #fff;
   border-radius: 40rpx;
   padding: 12px 24px;
   font-size: 16px;
   font-weight: 500;
   transition: all 0.3s ease;
+  border: none;
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(30, 154, 95, 0.3);
+  box-shadow: 0 6px 20px rgba(45, 106, 79, 0.35);
+  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
 }
 
 .btn-secondary {
@@ -105,6 +167,7 @@ img {
 .btn-secondary:hover {
   background: var(--primary-color);
   color: #fff;
+  border-color: var(--primary-color);
 }
 
 /* Flex 工具类 */
@@ -142,8 +205,20 @@ img {
   color: var(--secondary-color);
 }
 
+.text-tertiary {
+  color: var(--tertiary-color);
+}
+
 .text-accent {
   color: var(--accent-color);
+}
+
+.text-success {
+  color: var(--success-color);
+}
+
+.text-warning {
+  color: var(--warning-color);
 }
 
 .text-danger {

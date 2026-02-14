@@ -236,7 +236,13 @@ function initCharts() {
         datasets: [{
           label: '受捐金额(万元)',
           data: [12.5, 8.3, 15.6, 9.8, 11.2],
-          backgroundColor: ['#1e9a5f', '#2db872', '#d4af37', '#409EFF', '#67C23A']
+          backgroundColor: [
+            'var(--primary-color)',
+            'var(--primary-light)',
+            'var(--accent-color)',
+            'var(--secondary-color)',
+            'var(--accent-dark)'
+          ]
         }]
       },
       options: {
@@ -254,7 +260,7 @@ function initCharts() {
         labels: ['巡护', '设备', '社区'],
         datasets: [{
           data: [60, 25, 15],
-          backgroundColor: ['#1e9a5f', '#409EFF', '#E6A23C']
+          backgroundColor: ['var(--primary-color)', 'var(--secondary-color)', 'var(--accent-color)']
         }]
       },
       options: {
@@ -272,10 +278,10 @@ function initCharts() {
         datasets: [{
           label: '监测次数',
           data: [15, 18, 22, 28, 32, 35],
-          borderColor: '#1e9a5f',
+          borderColor: 'var(--primary-color)',
           tension: 0.4,
           fill: true,
-          backgroundColor: 'rgba(30, 154, 95, 0.1)'
+          backgroundColor: 'rgba(45, 106, 79, 0.15)'
         }]
       },
       options: {
@@ -318,7 +324,7 @@ onUnmounted(() => {
 }
 
 .page-header {
-  background: linear-gradient(135deg, #1e5a3a 0%, #2d8a5e 100%);
+  background: var(--gradient-primary);
   color: #fff;
   padding: 40px 20px;
   text-align: center;
@@ -346,7 +352,7 @@ onUnmounted(() => {
 .map-section {
   .map-container {
     position: relative;
-    background: #2d5a3a;
+    background: var(--primary-dark);
     border-radius: 16px;
     overflow: hidden;
     margin-bottom: 20px;
@@ -354,7 +360,7 @@ onUnmounted(() => {
     .leaflet-map {
       width: 100%;
       height: 500px;
-      background: linear-gradient(135deg, #1a3a2a 0%, #2d5a3a 50%, #1a4a3a 100%);
+      background: linear-gradient(135deg, var(--primary-dark) 0%, #2d5a4a 50%, var(--primary-dark) 100%);
     }
     
     .station-marker {
@@ -385,7 +391,7 @@ onUnmounted(() => {
         top: 44px;
         left: 50%;
         transform: translateX(-50%);
-        background: rgba(0, 0, 0, 0.8);
+        background: var(--bg-dark-overlay);
         color: #fff;
         padding: 4px 8px;
         border-radius: 4px;
@@ -396,7 +402,7 @@ onUnmounted(() => {
   }
   
   .my-guardian-grid {
-    background: #fff;
+    background: var(--bg-white);
     border-radius: 16px;
     padding: 20px;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
@@ -448,7 +454,7 @@ onUnmounted(() => {
   gap: 20px;
   
   .card {
-    background: #fff;
+    background: var(--bg-white);
     border-radius: 16px;
     padding: 20px;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
@@ -479,7 +485,7 @@ onUnmounted(() => {
   }
   
   .urgent-notice {
-    background: linear-gradient(135deg, #e54d42 0%, #f56c6c 100%);
+    background: var(--danger-color);
     color: #fff;
     
     .notice-header {
@@ -524,7 +530,7 @@ onUnmounted(() => {
       .species-item {
         border-radius: 8px;
         overflow: hidden;
-        background: #f5f7fa;
+        background: var(--bg-secondary);
         
         img {
           width: 100%;
@@ -564,7 +570,7 @@ onUnmounted(() => {
         position: absolute;
         top: 8px;
         right: 8px;
-        background: #e54d42;
+        background: var(--danger-color);
         color: #fff;
         padding: 4px 8px;
         border-radius: 4px;
@@ -605,7 +611,7 @@ onUnmounted(() => {
       align-items: center;
       gap: 8px;
       padding: 12px 0;
-      border-bottom: 1px solid #f0f0f0;
+      border-bottom: 1px solid var(--border-light);
       
       .label {
         color: var(--text-muted);
