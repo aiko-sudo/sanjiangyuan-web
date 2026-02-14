@@ -344,11 +344,11 @@ const filteredCraftsmen = computed(() => {
   return craftsmen.value.filter(c => c.category === activeFilter.value)
 })
 
-function getLevelType(level: string): string {
-  const types: Record<string, string> = {
+function getLevelType(level: string): 'primary' | 'success' | 'warning' | 'info' | 'danger' {
+  const types: Record<string, 'primary' | 'success' | 'warning' | 'info' | 'danger'> = {
     '国家级传承人': 'danger',
     '省级传承人': 'warning',
-    '市级传承人': ''
+    '市级传承人': 'primary'
   }
   return types[level] || 'info'
 }

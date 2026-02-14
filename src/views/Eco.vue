@@ -111,7 +111,7 @@
               <img :src="species.image" :alt="species.name" />
               <div class="species-info">
                 <span class="species-name">{{ species.name }}</span>
-                <el-tag size="small" :type="species.rarity === 'rare' ? 'danger' : ''">
+                <el-tag size="small" :type="species.rarity === 'rare' ? 'danger' : 'info'">
                   {{ species.rarity === 'rare' ? '稀有' : '常见' }}
                 </el-tag>
               </div>

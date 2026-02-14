@@ -198,10 +198,10 @@ const featuredPosts = ref([
   }
 ])
 
-function getLevelType(level: string): string {
-  const types: Record<string, string> = {
+function getLevelType(level: string): 'primary' | 'success' | 'warning' | 'info' | 'danger' {
+  const types: Record<string, 'primary' | 'success' | 'warning' | 'info' | 'danger'> = {
     '青铜守护者': 'info',
-    '白银守护者': '',
+    '白银守护者': 'primary',
     '黄金守护者': 'warning',
     '钻石守护者': 'danger'
   }
