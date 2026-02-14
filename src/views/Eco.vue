@@ -187,9 +187,11 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { Location, Warning, VideoCamera, View, Plus } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
-import { Chart, registerables } from 'chart.js'
+import type { Chart as ChartType } from 'chart.js'
 
-Chart.register(...registerables)
+// 使用全局的 Chart.js (通过 CDN 加载)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const Chart: any = (window as any).Chart
 
 interface Station {
   id: string
@@ -222,9 +224,9 @@ const snowLeopardChartRef = ref<HTMLCanvasElement | null>(null)
 const showStationDialog = ref(false)
 const selectedStation = ref<Station | null>(null)
 
-let donationChart: Chart | null = null
-let fundChart: Chart | null = null
-let snowLeopardChart: Chart | null = null
+let donationChart: ChartType | null = null
+let fundChart: ChartType | null = null
+let snowLeopardChart: ChartType | null = null
 
 function initCharts() {
   // 捐赠柱状图
