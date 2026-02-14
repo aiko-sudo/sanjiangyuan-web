@@ -6,7 +6,7 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: process.env.NODE_ENV === 'production' ? '/sanjiangyuan-web/' : '/',
+  base: process.env.NODE_ENV === 'production' ? './' : '/',
   plugins: [
     vue(),
     AutoImport({
@@ -21,7 +21,6 @@ export default defineConfig({
   ],
   build: {
     rollupOptions: {
-      external: ['chart.js', 'leaflet'],
       output: {
         manualChunks: {
           'element-plus': ['element-plus'],

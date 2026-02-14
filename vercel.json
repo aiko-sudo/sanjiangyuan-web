@@ -6,5 +6,11 @@
   "framework": "vite",
   "git": {
     "deploymentEnabled": true
-  }
+  },
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
 }
