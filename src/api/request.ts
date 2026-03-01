@@ -25,16 +25,12 @@ request.interceptors.request.use(
 // 响应拦截器
 request.interceptors.response.use(
   response => {
-    const res = response.data
-    if (res.code === 0) {
-      return res
-    } else {
-      console.error(res.message || '请求失败')
-      return Promise.reject(new Error(res.message || '请求失败'))
-    }
+    // 后端直接返回数据对象，无 code 包装
+    return response.data
   },
   error => {
-    console.error(error.message || '网络错误')
+    const msg = error.response?.data?.message || error.message || '网络错误'
+    console.error(msg)
     return Promise.reject(error)
   }
 )

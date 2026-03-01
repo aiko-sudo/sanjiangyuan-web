@@ -1,9 +1,11 @@
 <template>
   <div class="eco-page">
-    <div class="page-header">
+    <div class="page-header-common" style="background-image: url('https://images.unsplash.com/photo-1564349683136-77e08dba1ef7?w=1600');">
+    <div class="header-content">
       <h1>生态数据中心</h1>
       <p>用数据守护三江源 · 透明 · 参与 · 行动</p>
     </div>
+  </div>
     
     <div class="eco-container">
       <!-- 左侧地图区域 -->

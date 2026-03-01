@@ -1,9 +1,11 @@
 <template>
   <div class="community-page">
-    <div class="page-header">
+  <div class="page-header-common" style="background-image: url('https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?w=1600');">
+    <div class="header-content">
       <h1>共创社区</h1>
       <p>分享你的守护故事，遇见志同道合的守护者</p>
     </div>
+  </div>
     
     <div class="community-container">
       <!-- 左侧分类标签 -->
@@ -152,59 +154,88 @@
     </div>
     
     <!-- 发帖对话框 -->
-    <el-dialog v-model="showCreateDialog" title="发布守护故事" width="600px">
+    <el-dialog v-model="showCreateDialog" width="620px" :show-close="true" class="create-dialog">
+      <template #header>
+        <div class="dialog-header">
+          <div class="dialog-header-icon">
+            <el-icon :size="22"><Edit /></el-icon>
+          </div>
+          <div>
+            <h3 class="dialog-title">发布守护故事</h3>
+            <p class="dialog-subtitle">与万千守护者分享你的故事</p>
+          </div>
+        </div>
+      </template>
       <div class="create-form">
-        <el-input
-          v-model="newPost.content"
-          type="textarea"
-          :rows="6"
-          placeholder="分享你的守护故事..."
-          maxlength="2000"
-          show-word-limit
-        />
-        
-        <div class="upload-area">
+        <div class="form-section">
+          <el-input
+            v-model="newPost.content"
+            type="textarea"
+            :rows="6"
+            placeholder="写下你想分享的守护故事、非遗见闻、巡护日记……"
+            maxlength="2000"
+            show-word-limit
+            class="story-textarea"
+          />
+        </div>
+
+        <div class="form-section">
+          <div class="section-label">📸 添加图片</div>
           <el-upload
             v-model:file-list="fileList"
-            action="#"
+            action="/api/upload"
+            name="file"
             list-type="picture-card"
-            :auto-upload="false"
             :limit="9"
+            :on-success="handleUploadSuccess"
+            :on-error="handleUploadError"
+            class="story-upload"
           >
-            <el-icon><Plus /></el-icon>
+            <div class="upload-trigger">
+              <el-icon :size="24"><Plus /></el-icon>
+              <span>上传</span>
+            </div>
           </el-upload>
         </div>
-        
-        <div class="tag-select">
-          <span>添加标签：</span>
-          <el-check-tag 
-            v-for="tag in availableTags" 
-            :key="tag"
-            :checked="selectedTags.includes(tag)"
-            @change="toggleTag(tag)"
-          >
-            {{ tag }}
-          </el-check-tag>
+
+        <div class="form-section">
+          <div class="section-label">🏷️ 添加标签</div>
+          <div class="tag-pills">
+            <span
+              v-for="tag in availableTags"
+              :key="tag"
+              class="tag-pill"
+              :class="{ active: selectedTags.includes(tag) }"
+              @click="toggleTag(tag)"
+            >
+              {{ tag }}
+            </span>
+          </div>
         </div>
       </div>
-      
+
       <template #footer>
-        <el-button @click="showCreateDialog = false">取消</el-button>
-        <el-button type="primary" @click="submitPost" :loading="submitting">
-          发布
-        </el-button>
+        <div class="dialog-footer">
+          <el-button @click="showCreateDialog = false" round>取消</el-button>
+          <el-button type="primary" @click="submitPost" :loading="submitting" round class="submit-btn">
+            <el-icon v-if="!submitting"><Edit /></el-icon>
+            发布故事
+          </el-button>
+        </div>
       </template>
     </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { Edit, Star, ChatDotRound, Share, Plus, Top } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
+import request from '../api/request'
 
 interface Post {
-  id: string
+  _id: string
+  id?: string
   author: {
     nickname: string
     avatar: string
@@ -216,7 +247,7 @@ interface Post {
   comments: number
   createTime: Date
   tags: string[]
-  isLiked: boolean
+  isLiked?: boolean
   category: string
 }
 
@@ -254,39 +285,48 @@ const selectedTags = ref<string[]>([])
 const loading = ref(false)
 const submitting = ref(false)
 const hasMore = ref(true)
+const currentPage = ref(1)
+const totalPages = ref(1)
 
 const newPost = ref({
   content: ''
 })
 
-const posts = ref<Post[]>([
-  {
-    id: '1',
-    author: { nickname: '阿青', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=阿青', level: '黄金守护者' },
-    content: '今天在巡护途中遇到了三只藏原羚，它们警惕地看着我们，然后快速消失在草原深处。这就是三江源的魅力，总能遇到各种野生动物。',
-    images: ['https://images.unsplash.com/photo-1564349683136-77e08dba1ef7?w=600'],
-    likes: 128, comments: 32, createTime: new Date(), tags: ['守护故事', '野生动物'], isLiked: false, category: 'story'
-  },
-  {
-    id: '2',
-    author: { nickname: '卓玛', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=卓玛', level: '白银守护者' },
-    content: '跟着唐卡传承人学了一个月，终于完成了第一幅作品！虽然还有很多不足，但这个过程让我深深感受到了非遗的魅力。',
-    images: ['https://images.unsplash.com/photo-1549887534-1541e9326642?w=600'],
-    likes: 256, comments: 45, createTime: new Date(Date.now() - 3600000), tags: ['非遗'], isLiked: true, category: 'craft'
-  },
-  {
-    id: '3',
-    author: { nickname: '扎西', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=扎西', level: '钻石守护者' },
-    content: '本周巡护里程达到150公里，发现野生动物足迹若干。三江源的生态正在一天天变好，这离不开每一位守护者的努力。',
-    images: ['https://images.unsplash.com/photo-1575550959106-5a7defe28b56?w=600', 'https://images.unsplash.com/photo-1618477461853-5f8dd68aa395?w=600'],
-    likes: 512, comments: 89, createTime: new Date(Date.now() - 7200000), tags: ['守护故事', '巡护'], isLiked: false, category: 'story'
-  }
-])
+const posts = ref<Post[]>([])
 
-const filteredPosts = computed(() => {
-  if (activeCategory.value === 'all') return posts.value
-  return posts.value.filter(p => p.category === activeCategory.value)
+// 从数据库加载帖子
+async function fetchPosts(page = 1) {
+  loading.value = true
+  try {
+    const category = activeCategory.value
+    const res = await request.get('/community', { params: { page, limit: 20, category } })
+    if (page === 1) {
+      posts.value = (res.posts || []).map((p: any) => ({ ...p, isLiked: false }))
+    } else {
+      posts.value.push(...(res.posts || []).map((p: any) => ({ ...p, isLiked: false })))
+    }
+    currentPage.value = res.page
+    totalPages.value = res.totalPages
+    hasMore.value = res.page < res.totalPages
+  } catch (err) {
+    console.error('加载帖子失败:', err)
+  } finally {
+    loading.value = false
+  }
+}
+
+// 页面加载时获取帖子
+onMounted(() => {
+  fetchPosts()
 })
+
+// 切换分类时重新加载
+watch(activeCategory, () => {
+  currentPage.value = 1
+  fetchPosts(1)
+})
+
+const filteredPosts = computed(() => posts.value)
 
 function getLevelType(level: string): string {
   const types: Record<string, string> = {
@@ -300,23 +340,30 @@ function getLevelType(level: string): string {
 
 function formatTime(time: Date): string {
   const now = new Date()
-  const diff = now.getTime() - time.getTime()
+  const diff = now.getTime() - new Date(time).getTime()
   const minutes = Math.floor(diff / 60000)
   const hours = Math.floor(diff / 3600000)
   const days = Math.floor(diff / 86400000)
-  
+
+  if (minutes < 1) return '刚刚'
   if (minutes < 60) return `${minutes}分钟前`
   if (hours < 24) return `${hours}小时前`
   return `${days}天前`
 }
 
-function toggleLike(post: Post) {
-  post.isLiked = !post.isLiked
-  post.likes += post.isLiked ? 1 : -1
+async function toggleLike(post: Post) {
+  if (post.isLiked) return
+  try {
+    const res = await request.put(`/community/${post._id}/like`)
+    post.likes = res.likes
+    post.isLiked = true
+  } catch (err) {
+    console.error('点赞失败:', err)
+  }
 }
 
 function showCommentDialog(post: Post) {
-  console.log('显示评论对话框', post.id)
+  ElMessage.info('评论功能即将上线')
 }
 
 function sharePost(_post: Post) {
@@ -332,38 +379,59 @@ function toggleTag(tag: string) {
   }
 }
 
+function handleUploadSuccess(res: any, file: any) {
+  if (res.url) {
+    file.url = res.url
+  }
+}
+
+function handleUploadError() {
+  ElMessage.error('图片上传失败，请重试')
+}
+
 async function submitPost() {
   if (!newPost.value.content.trim()) {
     ElMessage.warning('请输入内容')
     return
   }
-  
+
   submitting.value = true
-  await new Promise(resolve => setTimeout(resolve, 1000))
-  
-  posts.value.unshift({
-    id: String(posts.value.length + 1),
-    author: { nickname: '当前用户', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=用户', level: '青铜守护者' },
-    content: newPost.value.content,
-    images: fileList.value.map((f: any) => f.url || ''),
-    likes: 0, comments: 0, createTime: new Date(),
-    tags: selectedTags.value, isLiked: false, category: 'story'
-  })
-  
-  submitting.value = false
-  showCreateDialog.value = false
-  newPost.value.content = ''
-  fileList.value = []
-  selectedTags.value = []
-  ElMessage.success('发布成功！获得20贡献值')
+  try {
+    const uploadedImages = fileList.value
+      .map((f: any) => f.response?.url || f.url)
+      .filter(Boolean)
+
+    const res = await request.post('/community', {
+      content: newPost.value.content,
+      tags: selectedTags.value,
+      category: 'story',
+      images: uploadedImages,
+      author: {
+        nickname: '当前用户',
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=用户',
+        level: '青铜守护者'
+      }
+    })
+
+    // 将新帖子插入到列表顶部
+    posts.value.unshift({ ...res.post, isLiked: false })
+
+    submitting.value = false
+    showCreateDialog.value = false
+    newPost.value.content = ''
+    fileList.value = []
+    selectedTags.value = []
+    ElMessage.success('发布成功！获得20贡献值')
+  } catch (err: any) {
+    submitting.value = false
+    ElMessage.error(err.response?.data?.message || '发布失败')
+  }
 }
 
 function loadMorePosts() {
-  loading.value = true
-  setTimeout(() => {
-    loading.value = false
-    hasMore.value = false
-  }, 1000)
+  if (hasMore.value) {
+    fetchPosts(currentPage.value + 1)
+  }
 }
 </script>
 
@@ -754,30 +822,176 @@ function loadMorePosts() {
   }
 }
 
+/* 发帖弹窗 - 深度定制 */
+:deep(.create-dialog) {
+  .el-dialog {
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.15);
+  }
+  .el-dialog__header {
+    padding: 24px 28px 16px;
+    margin: 0;
+    border-bottom: 1px solid #f0f2f5;
+    background: linear-gradient(135deg, #f8faf9 0%, #eef7f1 100%);
+  }
+  .el-dialog__body {
+    padding: 24px 28px;
+    background-color: #ffffff;
+  }
+  .el-dialog__footer {
+    padding: 16px 28px 24px;
+    border-top: 1px solid #f0f2f5;
+  }
+}
+
+.dialog-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.dialog-header-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--primary-color), #2ecc71);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.dialog-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.dialog-subtitle {
+  font-size: 13px;
+  color: var(--text-muted, #95a5a6);
+  margin: 2px 0 0;
+}
+
 .create-form {
-  .upload-area {
-    margin: 24px 0;
+  .form-section {
+    margin-bottom: 20px;
   }
 
-  .tag-select {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    flex-wrap: wrap;
-    margin-top: 16px;
+  .section-label {
     font-size: 14px;
-    color: var(--text-secondary);
+    font-weight: 500;
+    color: var(--text-secondary, #5d6d7e);
+    margin-bottom: 10px;
+  }
 
-    .el-check-tag {
-      border-radius: 20px;
-      padding: 8px 18px;
-      font-size: 13px;
-      transition: all 0.3s ease;
+  :deep(.story-textarea) {
+    .el-textarea__inner {
+      border-radius: 14px;
+      padding: 16px 18px;
+      font-size: 15px;
+      line-height: 1.7;
+      border: 1.5px solid #e8ecef;
+      background: #fafbfc;
+      transition: all 0.25s ease;
+      resize: vertical;
+
+      &:focus {
+        border-color: var(--primary-color);
+        background: #fff;
+        box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1);
+      }
+
+      &::placeholder {
+        color: #b0bec5;
+      }
+    }
+  }
+
+  :deep(.story-upload) {
+    .el-upload--picture-card {
+      width: 90px;
+      height: 90px;
+      border-radius: 12px;
+      border: 2px dashed #d8dee4;
+      background: #fafbfc;
+      transition: all 0.25s ease;
 
       &:hover {
-        background: var(--primary-color);
-        color: #ffffff;
+        border-color: var(--primary-color);
+        background: rgba(39, 174, 96, 0.04);
       }
+    }
+
+    .el-upload-list__item {
+      width: 90px;
+      height: 90px;
+      border-radius: 12px;
+    }
+  }
+
+  .upload-trigger {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    color: #b0bec5;
+    font-size: 12px;
+  }
+
+  .tag-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .tag-pill {
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    cursor: pointer;
+    border: 1.5px solid #e0e6ec;
+    color: var(--text-secondary, #5d6d7e);
+    background: #fff;
+    transition: all 0.25s ease;
+    user-select: none;
+
+    &:hover {
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+      background: rgba(39, 174, 96, 0.05);
+    }
+
+    &.active {
+      border-color: var(--primary-color);
+      background: var(--primary-color);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(39, 174, 96, 0.3);
+    }
+  }
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+
+  .submit-btn {
+    background: linear-gradient(135deg, var(--primary-color), #2ecc71);
+    border: none;
+    padding: 10px 28px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+    transition: all 0.3s ease;
+
+    &:hover {
+      box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
+      transform: translateY(-1px);
     }
   }
 }
@@ -792,3 +1006,4 @@ function loadMorePosts() {
   }
 }
 </style>
+

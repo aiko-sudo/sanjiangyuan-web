@@ -368,7 +368,7 @@ function shareInvite() {
 }
 
 .profile-container {
-  max-width: 1000px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 0 20px;
   display: grid;

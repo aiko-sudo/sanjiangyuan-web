@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <!-- 导航栏 -->
-    <header class="navbar" :class="{ 'navbar-transparent': isHome }">
+    <header class="navbar">
       <div class="navbar-content">
           <router-link to="/" class="logo">
             <span class="logo-icon">🌿</span>
@@ -27,7 +27,7 @@
         </nav>
         
         <div class="navbar-actions">
-          <el-button type="primary" round size="large">
+          <el-button type="primary" round size="large" @click="showJoinDialog = true">
             立即参与
           </el-button>
         </div>
@@ -42,18 +42,33 @@
         </transition>
       </router-view>
     </main>
+
+    <!-- 立即参与二维码对话框 -->
+    <el-dialog v-model="showJoinDialog" width="420px" class="join-dialog" align-center>
+      <div class="join-content">
+        <h3 class="join-title">欢迎加入三江源守护者</h3>
+        <p class="join-desc">
+          扫码关注官方服务号 <br>
+          随时获取最新志愿者招募信息，参与核心生态保护工作
+        </p>
+        <div class="qr-code-wrapper">
+          <img src="https://api.dicebear.com/7.x/identicon/svg?seed=sanjiangyuan" alt="公众号二维码" class="qr-image" />
+        </div>
+        <p class="qr-tip">（微信扫一扫关注）</p>
+      </div>
+    </el-dialog>
     
     <!-- 页脚 -->
     <footer class="footer">
       <div class="footer-content">
         <div class="footer-section">
           <h4>关于我们</h4>
-          <p>三江源生态保护平台致力于保护长江、黄河、澜沧江源头生态环境</p>
+          <p>三江源生态保护平台</p>
+          <p>致力于保护长江、黄河、澜沧江源头生态环境</p>
         </div>
         <div class="footer-section">
           <h4>快速链接</h4>
           <router-link to="/community">共创社区</router-link>
-          <router-link to="/crafts">非遗技艺</router-link>
           <router-link to="/eco">生态数据</router-link>
         </div>
         <div class="footer-section">
@@ -63,18 +78,16 @@
         </div>
       </div>
       <div class="footer-bottom">
-        <p>© 2024 三江源生态保护 | 用心守护，每一天</p>
+        <p>© 2026  三江源生态保护 | 用心守护，每一天</p>
       </div>
     </footer>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref } from 'vue'
 
-const route = useRoute()
-const isHome = computed(() => route.path === '/')
+const showJoinDialog = ref(false)
 </script>
 
 <style scoped lang="scss">
@@ -90,50 +103,58 @@ const isHome = computed(() => route.path === '/')
   left: 0;
   right: 0;
   z-index: 1000;
-  background: var(--bg-overlay);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
-  box-shadow: 0 2px 12px var(--shadow-color);
-  transition: all 0.3s ease;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  transition: all 0.4s ease;
+  height: 70px;
+  display: flex;
+  align-items: center;
 
   &.navbar-transparent {
-    background: var(--bg-dark-overlay);
-    backdrop-filter: blur(12px);
-    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.25);
-
+    background: transparent; /* 完全透明，只有渐变阴影 */
+    backdrop-filter: none;
+    box-shadow: none;
+    background-image: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0) 100%);
+    
     .nav-item {
-      color: #ffffff;
-      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
-
-      &:hover,
+      color: rgba(255, 255, 255, 0.95);
+      font-weight: 500;
+      
+      &:hover, 
       &.active {
-        color: var(--secondary-light);
-
+        color: #ffffff;
+        
         &::after {
-          background: var(--secondary-light);
+          background: #ffffff;
+          transform: scaleX(1);
         }
       }
     }
 
     .logo-text {
       color: #ffffff;
-      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+      text-shadow: 0 1px 3px rgba(0,0,0,0.3);
     }
 
     .el-button {
-      --el-button-bg-color: rgba(45, 106, 79, 0.95);
-      --el-button-border-color: transparent;
-      --el-button-hover-bg-color: var(--primary-light);
-      --el-button-hover-border-color: transparent;
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.5);
       color: #ffffff;
+      
+      &:hover {
+        background: var(--primary-color);
+        border-color: var(--primary-color);
+      }
     }
   }
 }
 
 .navbar-content {
-  max-width: 1200px;
+  width: 100%;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 0 20px;
-  height: 70px;
+  padding: 0 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -142,17 +163,20 @@ const isHome = computed(() => route.path === '/')
 .logo {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  text-decoration: none;
 
   .logo-icon {
-    font-size: 32px;
+    font-size: 28px;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
   }
 
   .logo-text {
     font-size: 20px;
-    font-weight: 600;
+    font-weight: 700;
     color: var(--primary-color);
-    text-shadow: 0 1px 2px rgba(45, 106, 79, 0.15);
+    letter-spacing: 0.5px;
+    transition: color 0.3s ease;
   }
 }
 
@@ -162,22 +186,24 @@ const isHome = computed(() => route.path === '/')
 
   .nav-item {
     font-size: 16px;
-    font-weight: 500;
     color: var(--text-primary);
+    text-decoration: none;
     padding: 8px 0;
     position: relative;
-    transition: all 0.3s ease;
+    font-weight: 500;
+    transition: color 0.3s ease;
 
     &::after {
       content: '';
       position: absolute;
       bottom: 0;
       left: 0;
-      width: 0;
-      height: 3px;
+      width: 100%;
+      height: 2px;
       background: var(--primary-color);
-      border-radius: 2px;
-      transition: width 0.3s ease;
+      transform: scaleX(0); /* 默认隐藏 */
+      transform-origin: center;
+      transition: transform 0.3s ease;
     }
 
     &:hover,
@@ -185,7 +211,7 @@ const isHome = computed(() => route.path === '/')
       color: var(--primary-color);
 
       &::after {
-        width: 100%;
+        transform: scaleX(1);
       }
     }
   }
@@ -193,8 +219,88 @@ const isHome = computed(() => route.path === '/')
 
 .navbar-actions {
   display: flex;
-  gap: 12px;
+  align-items: center;
+  gap: 16px;
+  
+  .el-button {
+    font-weight: 600;
+    padding: 20px 24px;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+  }
 }
+
+/* 立即参与对话框样式 */
+:deep(.join-dialog) {
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.15);
+
+  .el-dialog__header {
+    display: none;
+  }
+  
+  .el-dialog__body {
+    padding: 0;
+  }
+}
+
+.join-content {
+  padding: 40px 32px;
+  text-align: center;
+  background: linear-gradient(135deg, #ffffff 0%, #f7fefa 100%);
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, var(--primary-color), #2ecc71);
+  }
+
+  .join-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 12px;
+  }
+
+  .join-desc {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: 0 0 28px;
+  }
+
+  .qr-code-wrapper {
+    width: 200px;
+    height: 200px;
+    margin: 0 auto 16px;
+    padding: 12px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(39, 174, 96, 0.12);
+    border: 1px solid rgba(39, 174, 96, 0.1);
+
+    .qr-image {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+  }
+
+  .qr-tip {
+    font-size: 13px;
+    color: var(--primary-color);
+    font-weight: 500;
+    margin: 0;
+  }
+}
+
 
 .main-content {
   flex: 1;
@@ -208,7 +314,7 @@ const isHome = computed(() => route.path === '/')
 }
 
 .footer-content {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 0 20px;
   display: grid;

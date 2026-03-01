@@ -14,6 +14,7 @@
         >
           <source src="https://assets.mixkit.co/videos/preview/mixkit-aerial-view-of-mountain-ranges-at-sunset-1588-large.mp4" type="video/mp4" />
         </video>
+        <!-- 加深遮罩，确保文字清晰 -->
         <div class="video-overlay"></div>
       </div>
       
@@ -45,7 +46,8 @@
           <el-button 
             type="warning" 
             size="large" 
-            class="action-btn"
+            class="action-btn-secondary"
+            color="#bfa15f"
             @click="$router.push('/eco')"
           >
             <el-icon><Location /></el-icon>
@@ -54,12 +56,22 @@
           <el-button 
             type="success" 
             size="large" 
-            class="action-btn"
+            class="action-btn-secondary"
+             color="#2d8f6f"
             @click="$router.push('/eco')"
           >
             <el-icon><VideoCamera /></el-icon>
             云探访保护站
           </el-button>
+        </div>
+
+        <!-- 首页中部广告位 -->
+        <div class="home-ad-container" v-if="adConfig.homeMiddleAd.enabled">
+          <AdBanner 
+            :image="adConfig.homeMiddleAd.image"
+            :link="adConfig.homeMiddleAd.link"
+            :title="adConfig.homeMiddleAd.title"
+          />
         </div>
       </div>
     </section>
@@ -74,19 +86,23 @@
             :key="post.id" 
             class="post-card"
             shadow="hover"
+            :body-style="{ padding: '0px' }"
           >
-            <div class="post-header">
-              <el-avatar :src="post.author.avatar" :size="40" class="author-avatar" />
-              <div class="author-info">
-                <span class="author-name">{{ post.author.nickname }}</span>
-                <el-tag size="small" :type="getLevelType(post.author.level)">
-                  {{ post.author.level }}
-                </el-tag>
+            <div class="post-content-wrapper">
+              <div class="post-header">
+                <el-avatar :src="post.author.avatar" :size="48" class="author-avatar" />
+                <div class="author-info">
+                  <span class="author-name">{{ post.author.nickname }}</span>
+                  <el-tag size="small" effect="plain" round :type="getLevelType(post.author.level)">
+                    {{ post.author.level }}
+                  </el-tag>
+                </div>
               </div>
-            </div>
-            
-            <div class="post-content">
-              <p>{{ post.content }}</p>
+              
+              <div class="post-text-content">
+                <p>{{ post.content }}</p>
+              </div>
+
               <div class="post-images" v-if="post.images.length">
                 <el-image 
                   v-for="(img, index) in post.images.slice(0, 3)" 
@@ -97,27 +113,27 @@
                   class="post-image"
                 />
               </div>
-            </div>
-            
-            <div class="post-footer">
-              <div class="post-stats">
-                <span class="stat-item">
-                  <el-icon><Star /></el-icon>
-                  {{ post.likes }}
-                </span>
-                <span class="stat-item">
-                  <el-icon><ChatDotRound /></el-icon>
-                  {{ post.comments }}
-                </span>
+              
+              <div class="post-footer">
+                <div class="post-stats">
+                  <span class="stat-item">
+                    <el-icon><Star /></el-icon>
+                    {{ post.likes }}
+                  </span>
+                  <span class="stat-item">
+                    <el-icon><ChatDotRound /></el-icon>
+                    {{ post.comments }}
+                  </span>
+                </div>
+                <span class="post-time">{{ formatTime(post.createTime) }}</span>
               </div>
-              <span class="post-time">{{ formatTime(post.createTime) }}</span>
             </div>
           </el-card>
         </div>
         
         <div class="load-more">
-          <el-button type="primary" plain size="large" @click="loadMorePosts">
-            加载更多
+          <el-button class="load-more-btn" round size="large" @click="loadMorePosts">
+            加载更多故事
           </el-button>
         </div>
       </div>
@@ -128,6 +144,8 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import { Edit, Location, VideoCamera, Star, ChatDotRound } from '@element-plus/icons-vue'
+import AdBanner from '../components/AdBanner.vue'
+import { adConfig } from '../config/ads'
 
 interface DashboardItem {
   value: string
@@ -159,8 +177,8 @@ const featuredPosts = ref([
     },
     content: '今天在可可西里不冻泉保护站巡护时，幸运地拍到了雪豹的踪迹！这是我们保护区本月第32次监测到雪豹了。',
     images: [
-      'https://images.unsplash.com/photo-1575550959106-5a7defe28b56?w=400',
-      'https.com/photo-156://images.unsplash4349683136-77e08dba1ef7?w=400'
+      'https://images.unsplash.com/photo-1549887534-1541e9326642?w=800&q=80',
+      'https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?w=800&q=80'
     ],
     likes: 128,
     comments: 32,
@@ -175,7 +193,7 @@ const featuredPosts = ref([
     },
     content: '跟着传承人学习唐卡绘制已经一个月了，今天终于完成了第一幅作品！感谢才让扎西大师的悉心指导。',
     images: [
-      'https://images.unsplash.com/photo-1549887534-1541e9326642?w=400'
+      'https://images.unsplash.com/photo-1599576838383-a20cda72e259?w=800&q=80'
     ],
     likes: 256,
     comments: 45,
@@ -189,23 +207,23 @@ const featuredPosts = ref([
       level: '钻石守护者'
     },
     content: '今天组织了20名志愿者在长江源区清理垃圾，保护野生动物栖息地。大家辛苦了！',
-    images: [
-      'https://images.unsplash.com/photo-1618477461853-5f8dd68aa395?w=400'
-    ],
+    images: [],
     likes: 512,
     comments: 89,
     createTime: new Date(Date.now() - 7200000)
   }
 ])
 
-function getLevelType(level: string): string {
-  const types: Record<string, string> = {
-    '青铜守护者': 'info',
-    '白银守护者': '',
-    '黄金守护者': 'warning',
-    '钻石守护者': 'danger'
+// 辅助函数：获取等级对应的 Tag 类型
+const getLevelType = (level: string): 'success' | 'warning' | 'danger' | 'info' | 'primary' => {
+  switch (level) {
+    case 'Lv.1': return 'info'
+    case 'Lv.2': return 'success'
+    case 'Lv.3': return 'warning'
+    case 'Lv.4': return 'danger'
+    case 'Lv.5': return 'primary'
+    default: return 'info'
   }
-  return types[level] || 'info'
 }
 
 function formatTime(time: Date): string {
@@ -251,12 +269,12 @@ onUnmounted(() => {
 .hero-section {
   position: relative;
   height: 100vh;
-  min-height: 600px;
+  min-height: 700px;
   display: flex;
-  align-items: center;
+  align-items: center; 
   justify-content: center;
   overflow: hidden;
-  background: linear-gradient(135deg, #1B4332 0%, #2D6A4F 50%, #40916C 100%);
+  background-color: #f0fdf4; /* Fallback 浅绿 */
 }
 
 .video-background {
@@ -265,15 +283,14 @@ onUnmounted(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: -1;
-  background: linear-gradient(135deg, #1B4332 0%, #2D6A4F 50%, #40916C 100%);
+  z-index: 0;
 
   .hero-video {
     width: 100%;
     height: 100%;
     object-fit: cover;
     opacity: 0;
-    transition: opacity 0.8s ease;
+    transition: opacity 1s ease;
   }
 
   .hero-video.loaded {
@@ -286,95 +303,91 @@ onUnmounted(() => {
     left: 0;
     right: 0;
     bottom: 0;
+    /* 极致通透：仅在底部加一点点渐变以衬托白色文字，整体保持明亮 */
     background: linear-gradient(
       180deg,
-      rgba(27, 67, 50, 0.6) 0%,
-      rgba(13, 31, 23, 0.8) 50%,
-      rgba(26, 26, 46, 0.9) 100%
+      rgba(0,0,0,0) 0%,
+      rgba(0,0,0,0.05) 60%,
+      rgba(0,0,0,0.3) 100%
     );
   }
 }
 
 .hero-content {
   position: relative;
+  z-index: 10;
   text-align: center;
-  color: #fff;
-  padding: 40px 60px;
-  background: rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(10px);
-  border-radius: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  max-width: 1400px; /* 增加宽度至 1400px */
+  padding: 0 20px;
+  margin-top: -40px;
 }
 
 .hero-title {
-  margin-bottom: 50px;
-
+  margin-bottom: 60px;
+  
   .title-line {
     display: block;
-    font-size: 56px;
-    font-weight: 700;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5), 0 4px 20px rgba(45, 106, 79, 0.4);
-    margin-bottom: 16px;
+    font-size: 5rem;
+    font-weight: 800;
     color: #ffffff;
-    letter-spacing: 6px;
-    background: linear-gradient(135deg, #ffffff 0%, #d4efdf 50%, #ffffff 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    /* 柔和的光晕阴影，而非硬黑阴影 */
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); 
+    margin-bottom: 20px;
+    letter-spacing: 4px; 
   }
 
   .subtitle-line {
     display: block;
-    font-size: 24px;
-    font-weight: 400;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+    font-size: 1.8rem;
     color: rgba(255, 255, 255, 0.95);
-    letter-spacing: 10px;
-    padding-left: 10px;
+    letter-spacing: 8px;
+    font-weight: 500;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
   }
 }
 
 .data-dashboard {
-  display: flex;
-  justify-content: center;
-  gap: 24px;
-  margin-bottom: 50px;
-  flex-wrap: wrap;
-
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-bottom: 60px;
+  
   .data-card {
-    background: rgba(255, 255, 255, 0.15);
+    /* 切换为亮色玻璃拟态：白底、高模糊 */
+    background: rgba(255, 255, 255, 0.75);
     backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05); /* 极轻的阴影 */
+    
+    padding: 24px 16px;
+    text-align: center;
     border-radius: 16px;
-    padding: 24px 36px;
-    min-width: 180px;
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    transition: all 0.3s ease;
+    transition: transform 0.3s ease;
 
     &:hover {
-      background: rgba(255, 255, 255, 0.22);
-      transform: translateY(-4px);
-      border-color: rgba(255, 255, 255, 0.4);
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+      transform: translateY(-5px);
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
     }
 
     .data-value {
-      font-size: 36px;
+      display: block;
+      font-size: 2.5rem;
       font-weight: 700;
-      margin-bottom: 10px;
-      color: #ffffff;
-      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
-      background: linear-gradient(135deg, #ffffff 0%, #b8e6c8 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      /* 改为深绿色，在白底上清晰可见 */
+      color: var(--primary-color); 
+      margin-bottom: 8px;
+      text-shadow: none; /* 去掉阴影，保持干净 */
     }
 
     .data-label {
-      font-size: 13px;
-      color: rgba(255, 255, 255, 0.9);
-      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+      font-size: 0.9rem;
+      color: var(--text-secondary); /* 深灰文字 */
+      font-weight: 500;
       letter-spacing: 1px;
+      text-shadow: none;
     }
   }
 }
@@ -383,302 +396,247 @@ onUnmounted(() => {
   display: flex;
   justify-content: center;
   gap: 20px;
-  flex-wrap: wrap;
-
+  margin-bottom: 40px; /* 增加底部间距给广告位 */
+  
   .action-btn {
-    padding: 16px 32px;
-    font-size: 15px;
+    padding: 24px 48px;
+    font-size: 1.1rem;
     border-radius: 50px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-weight: 500;
+    font-weight: 600;
     letter-spacing: 1px;
-    transition: all 0.3s ease;
-    background: rgba(255, 255, 255, 0.2);
-    border: 2px solid rgba(255, 255, 255, 0.4);
-    color: #ffffff;
-    backdrop-filter: blur(8px);
-
-    &:hover,
-    &:active {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-      background: rgba(255, 255, 255, 0.3);
-      border-color: rgba(255, 255, 255, 0.6);
-    }
-
-    &.share-btn {
-      background: var(--primary-color);
-      border-color: var(--primary-color);
-      box-shadow: 0 4px 16px rgba(45, 106, 79, 0.5);
-
-      &:hover {
-        background: var(--primary-light);
-        border-color: var(--primary-light);
-        box-shadow: 0 8px 32px rgba(45, 106, 79, 0.6);
-      }
-    }
-
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    
     .el-icon {
-      font-size: 18px;
+      margin-right: 8px;
     }
   }
+  
+  .action-btn-secondary {
+    padding: 24px 32px;
+    font-size: 1.1rem;
+    border-radius: 50px;
+    font-weight: 600;
+    color: white;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    border: none;
+    
+    .el-icon {
+      margin-right: 8px;
+    }
+  }
+}
+
+/* 广告位样式 */
+.home-ad-container {
+  max-width: 1000px;
+  margin: 0 auto;
 }
 
 .featured-section {
   padding: 100px 0;
-  background: linear-gradient(180deg, #E8F0EC 0%, #D0E0D9 50%, #C1D4C9 100%);
-}
-
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
+  background: var(--bg-body);
+  
+  .container {
+    max-width: 1400px; /* 增加宽度至 1400px */
+    margin: 0 auto;
+    padding: 0 20px;
+  }
 }
 
 .section-title {
   text-align: center;
-  font-size: 40px;
-  font-weight: 600;
+  font-size: 2.5rem;
   color: var(--text-primary);
-  margin-bottom: 16px;
-  position: relative;
-  display: inline-block;
-  width: 100%;
-
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: -16px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 80px;
-    height: 4px;
-    background: var(--gradient-primary);
-    border-radius: 2px;
-  }
+  margin-bottom: 60px;
+  font-weight: 700;
 }
 
 .posts-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: 32px;
   margin-bottom: 48px;
-  margin-top: 80px;
 }
 
 .post-card {
-  border-radius: 20px;
+  border: none;
+  background: white;
+  border-radius: 16px;
   overflow: hidden;
-  background: var(--bg-white);
-  box-shadow: 0 8px 32px var(--shadow-color);
-  border: 1px solid var(--border-light);
-  transition: all 0.4s ease;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s ease;
 
   &:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 16px 48px var(--shadow-color);
-    border-color: var(--primary-light);
-  }
-
-  :deep(.el-card__body) {
-    padding: 24px;
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
   }
 }
 
+.post-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
 .post-header {
+  padding: 20px 20px 0;
   display: flex;
   align-items: center;
-  gap: 14px;
-  margin-bottom: 18px;
+  gap: 12px;
+  margin-bottom: 16px;
 
   .author-avatar {
-    border: 3px solid var(--accent-color);
-    box-shadow: 0 2px 8px rgba(212, 168, 75, 0.25);
+    border: 2px solid var(--border-color);
   }
 
   .author-info {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 4px;
 
     .author-name {
-      font-weight: 600;
+      font-weight: 700;
       color: var(--text-primary);
-      font-size: 15px;
+      font-size: 1rem;
     }
   }
 }
 
-.post-content {
-  margin-bottom: 18px;
-
+.post-text-content {
+  padding: 0 20px;
+  margin-bottom: 16px;
+  
   p {
     color: var(--text-secondary);
-    line-height: 1.9;
-    margin-bottom: 16px;
-    display: -webkit-box;
-    -webkit-line-clamp: 4;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    font-size: 14px;
+    line-height: 1.6;
+    font-size: 1rem;
   }
+}
 
-  .post-images {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
+.post-images {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  margin-bottom: 16px;
+  padding: 0 20px;
 
-    .post-image {
-      aspect-ratio: 1;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: all 0.3s ease;
+  .post-image {
+    aspect-ratio: 1;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #f0f0f0;
 
-      &:hover {
-        transform: scale(1.05);
-        z-index: 1;
-      }
+    &:hover {
+      filter: brightness(0.9);
     }
   }
 }
 
 .post-footer {
+  margin-top: auto;
+  padding: 16px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: 16px;
-  border-top: 1px solid var(--border-light);
+  border-top: 1px solid var(--border-color);
+  background: #fcfcfc;
 
   .post-stats {
     display: flex;
     gap: 20px;
-
+    
     .stat-item {
       display: flex;
       align-items: center;
       gap: 6px;
       color: var(--text-muted);
-      font-size: 14px;
-      transition: color 0.3s ease;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: color 0.2s;
 
       &:hover {
         color: var(--primary-color);
-      }
-
-      .el-icon {
-        font-size: 16px;
       }
     }
   }
 
   .post-time {
+    font-size: 0.85rem;
     color: var(--text-muted);
-    font-size: 12px;
   }
 }
 
 .load-more {
   text-align: center;
-  margin-top: 20px;
+  margin-top: 60px;
 
-  .el-button {
-    padding: 16px 48px;
-    font-size: 15px;
-    border-radius: 50px;
-    letter-spacing: 2px;
-    background: transparent;
-    border: 2px solid var(--primary-color);
+  .load-more-btn {
+    padding: 12px 48px;
     color: var(--primary-color);
-    transition: all 0.3s ease;
+    border: 1px solid var(--primary-color);
+    background: transparent;
+    transition: all 0.3s;
 
     &:hover {
       background: var(--primary-color);
-      color: #ffffff;
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(45, 106, 79, 0.3);
+      color: white;
     }
   }
 }
 
-/* 响应式 */
+/* 响应式适配 */
 @media (max-width: 1024px) {
-  .posts-grid {
-    grid-template-columns: repeat(2, 1fr);
+  .hero-title .title-line {
+    font-size: 3.5rem;
   }
-
+  
   .data-dashboard {
-    flex-wrap: wrap;
-    gap: 20px;
-
-    .data-card {
-      min-width: 160px;
-      padding: 20px 32px;
-
-      .data-value {
-        font-size: 32px;
-      }
+    grid-template-columns: repeat(2, 1fr);
+    
+    .data-card .data-value {
+      font-size: 2rem;
     }
   }
 }
 
 @media (max-width: 768px) {
-  .hero-title {
-    .title-line {
-      font-size: 42px;
-      letter-spacing: 2px;
-    }
+  .hero-section {
+    min-height: 100vh;
+  }
 
-    .subtitle-line {
-      font-size: 18px;
+  .hero-title {
+    margin-bottom: 40px;
+    
+    .title-line {
+      font-size: 2.5rem;
       letter-spacing: 4px;
+    }
+    .subtitle-line {
+      font-size: 1.2rem;
+      letter-spacing: 6px;
     }
   }
 
   .data-dashboard {
-    flex-direction: column;
-    align-items: center;
-
-    .data-card {
-      width: 100%;
-      max-width: 280px;
-      padding: 20px 28px;
-
-      .data-value {
-        font-size: 28px;
-      }
-
-      .data-label {
-        font-size: 13px;
-      }
-    }
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 0 20px;
   }
 
   .quick-actions {
     flex-direction: column;
-    align-items: center;
+    padding: 0 40px;
     gap: 16px;
-
-    .action-btn {
+    
+    .action-btn, 
+    .action-btn-secondary {
       width: 100%;
-      max-width: 280px;
-      justify-content: center;
-      padding: 14px 28px;
     }
   }
-
-  .posts-grid {
-    grid-template-columns: 1fr;
-    gap: 24px;
-  }
-
-  .section-title {
-    font-size: 28px;
-  }
-
-  .featured-section {
-    padding: 60px 0;
+  
+  .home-ad-container {
+      padding: 0 20px;
   }
 }
 </style>

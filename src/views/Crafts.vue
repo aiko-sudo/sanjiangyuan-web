@@ -1,9 +1,11 @@
 <template>
   <div class="crafts-page">
-    <div class="page-header">
+    <div class="page-header-common" style="background-image: url('https://images.unsplash.com/photo-1599576838383-a20cda72e259?w=1600');">
+    <div class="header-content">
       <h1>非遗技艺</h1>
       <p>探寻千年技艺，传承文化血脉</p>
     </div>
+  </div>
     
     <div class="container">
       <!-- 传承人矩阵 -->
