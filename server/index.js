@@ -34,8 +34,8 @@ app.use(async (req, res, next) => {
     if (req.path.startsWith('/api')) {
       return res.status(500).json({
         error: '数据库连接失败',
-        message: '请确保本地 MongoDB 已安装并启动',
-        hint: '你可以搜索 "MongoDB Compass" 来查看本地数据库状态'
+        message: '请确保 MongoDB 连接字符串正确',
+        hint: process.env.VERCEL ? '请在 Vercel 控制台检查 MONGODB_URI 环境变量' : '请确保本地 MongoDB 已启动'
       });
     }
     next();
