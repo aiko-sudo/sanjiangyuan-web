@@ -210,7 +210,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { Star, Plus, VideoCamera } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import request from '../api/request'
@@ -285,9 +285,7 @@ const helpQuestion = ref('')
 const learningDate = ref(new Date())
 const learningTime = ref(new Date())
 
-const filteredCraftsmen = computed(() => {
-  return craftsmen.value
-})
+
 
 function getLevelType(level: string): any {
   const types: Record<string, string> = {

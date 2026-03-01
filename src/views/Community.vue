@@ -228,7 +228,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { Edit, Star, ChatDotRound, Share, Plus, Top } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import request from '../api/request'
@@ -299,7 +299,7 @@ async function fetchPosts(page = 1) {
   loading.value = true
   try {
     const category = activeCategory.value
-    const res = await request.get('/community', { params: { page, limit: 20, category } })
+    const res: any = await request.get('/community', { params: { page, limit: 20, category } })
     if (page === 1) {
       posts.value = (res.posts || []).map((p: any) => ({ ...p, isLiked: false }))
     } else {
@@ -328,10 +328,10 @@ watch(activeCategory, () => {
 
 const filteredPosts = computed(() => posts.value)
 
-function getLevelType(level: string): string {
-  const types: Record<string, string> = {
+function getLevelType(level: string): 'info' | 'success' | 'warning' | 'danger' | undefined {
+  const types: Record<string, 'info' | 'success' | 'warning' | 'danger' | undefined> = {
     '青铜守护者': 'info',
-    '白银守护者': '',
+    '白银守护者': undefined,
     '黄金守护者': 'warning',
     '钻石守护者': 'danger'
   }
@@ -354,7 +354,7 @@ function formatTime(time: Date): string {
 async function toggleLike(post: Post) {
   if (post.isLiked) return
   try {
-    const res = await request.put(`/community/${post._id}/like`)
+    const res: any = await request.put(`/community/${post._id}/like`)
     post.likes = res.likes
     post.isLiked = true
   } catch (err) {
@@ -362,7 +362,7 @@ async function toggleLike(post: Post) {
   }
 }
 
-function showCommentDialog(post: Post) {
+function showCommentDialog(_post: Post) {
   ElMessage.info('评论功能即将上线')
 }
 
@@ -401,7 +401,7 @@ async function submitPost() {
       .map((f: any) => f.response?.url || f.url)
       .filter(Boolean)
 
-    const res = await request.post('/community', {
+    const res: any = await request.post('/community', {
       content: newPost.value.content,
       tags: selectedTags.value,
       category: 'story',
