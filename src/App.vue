@@ -74,7 +74,7 @@
         <div class="footer-section">
           <h4>联系我们</h4>
           <p>邮箱: contact@sanjiangyuan.org</p>
-          <p>电话: 0971-1234567</p>
+          <p>电话: 0971-8135112(省生态环境厅)</p>
         </div>
       </div>
       <div class="footer-bottom">

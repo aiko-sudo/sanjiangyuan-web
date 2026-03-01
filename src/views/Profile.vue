@@ -256,11 +256,11 @@ const userInfo = ref({
 async function fetchUserProfile() {
   try {
     // 假设我们有一个 /api/users/profile 或者通过 /api/stats/overview 结合当前用户 ID
-    const res = await request.get('/users/profile')
-    if (res.data.user) {
+    const res: any = await request.get('/users/profile')
+    if (res.user) {
       userInfo.value = {
         ...userInfo.value,
-        ...res.data.user
+        ...res.user
       }
     }
   } catch (error) {
@@ -299,10 +299,10 @@ const loadingPosts = ref(false)
 async function fetchMyPosts() {
   loadingPosts.value = true
   try {
-    const res = await request.get('/community', {
+    const res: any = await request.get('/community', {
       params: { author: userInfo.value.nickname, limit: 10 }
     })
-    myPosts.value = res.data.posts.map((p: any) => ({
+    myPosts.value = (res.posts || []).map((p: any) => ({
       id: p._id,
       title: p.content.slice(0, 20) + '...',
       summary: p.content.slice(0, 100),

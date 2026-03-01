@@ -238,13 +238,13 @@ const loading = ref(false)
 async function fetchCraftsmen() {
   loading.value = true
   try {
-    const res = await request.get('/craftsmen', {
+    const res: any = await request.get('/craftsmen', {
       params: {
         category: activeFilter.value === 'all' ? '' : activeFilter.value,
         limit: 100
       }
     })
-    craftsmen.value = res.data.craftsmen
+    craftsmen.value = res.craftsmen
   } catch (error) {
     ElMessage.error('获取传承人数据失败')
   } finally {
@@ -262,12 +262,12 @@ const skillRankings = ref([
 
 async function fetchStats() {
   try {
-    const res = await request.get('/stats/overview')
+    const res: any = await request.get('/stats/overview')
     // 这里我们可以根据后端返回的 post 数量或其它指标来模拟排序，
     // 目前后端 overview 返回的是总人数展示
-    if (skillRankings.value[0]) skillRankings.value[0].count = res.data.posts * 12 + 500 // 模拟一些基础数据
-    if (skillRankings.value[1]) skillRankings.value[1].count = res.data.craftsmen * 45
-    if (skillRankings.value[2]) skillRankings.value[2].count = res.data.users * 2
+    if (skillRankings.value[0]) skillRankings.value[0].count = res.posts * 12 + 500 // 模拟一些基础数据
+    if (skillRankings.value[1]) skillRankings.value[1].count = res.craftsmen * 45
+    if (skillRankings.value[2]) skillRankings.value[2].count = res.users * 2
   } catch (error) {
     console.error('获取统计数据失败')
   }
