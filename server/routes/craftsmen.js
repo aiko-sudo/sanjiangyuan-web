@@ -4,34 +4,36 @@ const { auth, adminOnly } = require('../middleware/auth');
 
 const router = express.Router();
 
-// 获取传承人列表
-router.get('/', auth, async (req, res) => {
+// 获取传承人列表 (公开)
+router.get('/', async (req, res) => {
   try {
     const { page = 1, limit = 20, category, keyword } = req.query;
     const query = {};
-    if (category) query.category = category;
+    if (category && category !== 'all') query.category = category;
     if (keyword) query.name = new RegExp(keyword, 'i');
-    
+
     const craftsmen = await Craftsman.find(query)
       .skip((page - 1) * limit)
       .limit(parseInt(limit))
       .sort({ guardians: -1 });
-    
+
     const total = await Craftsman.countDocuments(query);
     res.json({ craftsmen, total, page: parseInt(page), totalPages: Math.ceil(total / limit) });
   } catch (err) {
-    res.status(500).json({ message: '服务器错误' });
+    console.error('Error fetching craftsmen:', err);
+    res.status(500).json({ message: '服务器错误', error: err.message });
   }
 });
 
-// 获取单个传承人
-router.get('/:id', auth, async (req, res) => {
+// 获取单个传承人 (公开)
+router.get('/:id', async (req, res) => {
   try {
     const craftsman = await Craftsman.findById(req.params.id);
     if (!craftsman) return res.status(404).json({ message: '传承人不存在' });
     res.json({ craftsman });
   } catch (err) {
-    res.status(500).json({ message: '服务器错误' });
+    console.error('Error fetching craftsman by id:', err);
+    res.status(500).json({ message: '服务器错误', error: err.message });
   }
 });
 

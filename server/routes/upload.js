@@ -54,8 +54,12 @@ router.post('/', upload.single('file'), (req, res) => {
             url: fileUrl
         });
     } catch (error) {
-        console.error('上传错误:', error);
-        res.status(500).json({ message: '上传失败', error: error.message });
+        console.error('❌ Upload error details:', {
+            message: error.message,
+            stack: error.stack,
+            file: req.file
+        });
+        res.status(500).json({ message: '上传失败', error: error.message, details: error.stack });
     }
 });
 

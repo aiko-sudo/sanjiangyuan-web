@@ -88,7 +88,7 @@ app.use((err, req, res, next) => {
 // 本地开发时启动服务器
 if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
   const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () => {
+  app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 本地服务器运行在 http://localhost:${PORT}`);
   });
 }

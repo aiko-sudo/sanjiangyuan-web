@@ -24,11 +24,11 @@ export default defineConfig(({ mode }) => {
       host: true,
       proxy: {
         '/api': {
-          target: env.VITE_API_BASE_URL || 'http://127.0.0.1:3000',
+          target: (env.VITE_API_BASE_URL && env.VITE_API_BASE_URL.startsWith('http')) ? env.VITE_API_BASE_URL : 'http://127.0.0.1:3000',
           changeOrigin: true,
         },
         '/uploads': {
-          target: env.VITE_API_BASE_URL ? (env.VITE_API_BASE_URL.replace('/api', '') || 'http://127.0.0.1:3000') : 'http://127.0.0.1:3000',
+          target: (env.VITE_API_BASE_URL && env.VITE_API_BASE_URL.startsWith('http')) ? env.VITE_API_BASE_URL.replace('/api', '') : 'http://127.0.0.1:3000',
           changeOrigin: true,
         }
       }

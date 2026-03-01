@@ -157,7 +157,7 @@
           <h2>📝 我的内容</h2>
           <el-tabs v-model="activeTab">
             <el-tab-pane label="发布的帖子" name="posts">
-              <div class="content-list">
+              <div class="content-list" v-loading="loadingPosts">
                 <div 
                   v-for="post in myPosts" 
                   :key="post.id"
@@ -235,22 +235,38 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { 
   Camera, Edit, Coin, Calendar, Grid, CircleCheck, 
   CopyDocument, Star, ChatDotRound, Lock, SwitchButton 
 } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
+import request from '../api/request'
 
 const userInfo = ref({
-  nickname: '守护者阿青',
-  avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=阿青',
-  level: '钻石守护者',
-  intro: '三江源生态保护志愿者，致力于野生动物保护和非遗传承',
-  contribution: 1280,
-  guardianDays: 128,
-  guardianGrids: 5
+  nickname: '守护者',
+  avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=User',
+  level: '青铜守护者',
+  intro: '尚未填写个人简介',
+  contribution: 0,
+  guardianDays: 0,
+  guardianGrids: 0
 })
+
+async function fetchUserProfile() {
+  try {
+    // 假设我们有一个 /api/users/profile 或者通过 /api/stats/overview 结合当前用户 ID
+    const res = await request.get('/users/profile')
+    if (res.data.user) {
+      userInfo.value = {
+        ...userInfo.value,
+        ...res.data.user
+      }
+    }
+  } catch (error) {
+    console.log('尚未登录或获取用户信息失败')
+  }
+}
 
 const checkinData = ref(['2024-07-10', '2024-07-11', '2024-07-12', '2024-07-13', '2024-07-14', '2024-07-15'])
 const calendarDate = ref(new Date())
@@ -277,10 +293,35 @@ const activities = ref([
   { id: '6', text: '故事被官方精选', points: 100, time: '1周前' }
 ])
 
-const myPosts = ref([
-  { id: '1', title: '可可西里巡护日记', summary: '今天在巡护途中遇到了雪豹...', images: ['https://images.unsplash.com/photo-1575550959106-5a7defe28b56?w=200'], likes: 128, comments: 32, time: '2天前' },
-  { id: '2', title: '非遗探访：唐卡绘制体验', summary: '跟着传承人学习唐卡绘制...', images: ['https://images.unsplash.com/photo-1549887534-1541e9326642?w=200'], likes: 256, comments: 45, time: '1周前' }
-])
+const myPosts = ref<any[]>([])
+const loadingPosts = ref(false)
+
+async function fetchMyPosts() {
+  loadingPosts.value = true
+  try {
+    const res = await request.get('/community', {
+      params: { author: userInfo.value.nickname, limit: 10 }
+    })
+    myPosts.value = res.data.posts.map((p: any) => ({
+      id: p._id,
+      title: p.content.slice(0, 20) + '...',
+      summary: p.content.slice(0, 100),
+      images: p.images || [],
+      likes: p.likes || 0,
+      comments: p.comments || 0,
+      time: new Date(p.createTime).toLocaleDateString()
+    }))
+  } catch (error) {
+    console.error('获取我的帖子失败')
+  } finally {
+    loadingPosts.value = false
+  }
+}
+
+onMounted(() => {
+  fetchUserProfile()
+  fetchMyPosts()
+})
 
 const myFavorites = ref([
   { id: '1', title: '三江源雪豹监测报告', summary: '2024年第一季度雪豹种群监测...', images: ['https://images.unsplash.com/photo-1564349683136-77e08dba1ef7?w=200'], author: '阿青' },

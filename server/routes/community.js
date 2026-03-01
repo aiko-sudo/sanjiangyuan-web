@@ -6,9 +6,10 @@ const router = express.Router();
 // 获取已发布的帖子列表（公开，无需登录）
 router.get('/', async (req, res) => {
     try {
-        const { page = 1, limit = 20, category } = req.query;
+        const { page = 1, limit = 20, category, author } = req.query;
         const query = { status: 'published' };
         if (category && category !== 'all') query.category = category;
+        if (author) query['author.nickname'] = author;
 
         const posts = await Post.find(query)
             .skip((page - 1) * limit)
@@ -45,8 +46,12 @@ router.post('/', async (req, res) => {
         await post.save();
         res.status(201).json({ message: '发布成功', post });
     } catch (err) {
-        console.error('Community post error:', err);
-        res.status(500).json({ message: '服务器错误' });
+        console.error('❌ Community post error details:', {
+            message: err.message,
+            stack: err.stack,
+            body: req.body
+        });
+        res.status(500).json({ message: '发布失败', error: err.message, details: err.stack });
     }
 });
 

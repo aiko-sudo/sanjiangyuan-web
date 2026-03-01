@@ -4,20 +4,36 @@ const { auth, adminOnly } = require('../middleware/auth');
 
 const router = express.Router();
 
+// 获取当前用户信息 (公开)
+router.get('/profile', async (req, res) => {
+  try {
+    const token = req.header('Authorization')?.replace('Bearer ', '');
+    if (!token) {
+      return res.json({ user: null, message: '未登录' });
+    }
+    const jwt = require('jsonwebtoken');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret');
+    const user = await User.findById(decoded.id).select('-password');
+    res.json({ user });
+  } catch (err) {
+    res.json({ user: null, message: '登录已过期' });
+  }
+});
+
 // 获取用户列表
 router.get('/', auth, async (req, res) => {
   try {
     const { page = 1, limit = 20, keyword } = req.query;
     const query = keyword ? { nickname: new RegExp(keyword, 'i') } : {};
-    
+
     const users = await User.find(query)
       .select('-password')
       .skip((page - 1) * limit)
       .limit(parseInt(limit))
       .sort({ createdAt: -1 });
-    
+
     const total = await User.countDocuments(query);
-    
+
     res.json({ users, total, page: parseInt(page), totalPages: Math.ceil(total / limit) });
   } catch (err) {
     res.status(500).json({ message: '服务器错误' });
@@ -41,10 +57,10 @@ router.post('/', auth, adminOnly, async (req, res) => {
     const { username, password, nickname, role } = req.body;
     const existing = await User.findOne({ username });
     if (existing) return res.status(400).json({ message: '用户名已存在' });
-    
+
     const user = new User({ username, password, nickname, role });
     await user.save();
-    
+
     res.status(201).json({ message: '创建成功', user: { id: user._id, username, nickname, role } });
   } catch (err) {
     res.status(500).json({ message: '服务器错误' });

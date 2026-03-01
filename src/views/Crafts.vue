@@ -22,9 +22,9 @@
           </div>
         </div>
         
-        <div class="craftsmen-grid">
+        <div class="craftsmen-grid" v-loading="loading">
           <div 
-            v-for="craftsman in filteredCraftsmen" 
+            v-for="craftsman in craftsmen" 
             :key="craftsman.id" 
             class="craftsman-card"
             @click="showCraftsmanDetail(craftsman)"
@@ -210,9 +210,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { Star, Plus, VideoCamera } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
+import request from '../api/request'
 
 interface Craftsman {
   id: string
@@ -230,110 +231,53 @@ interface Craftsman {
   category: string
 }
 
-const craftsmen = ref<Craftsman[]>([
-  {
-    id: '1',
-    name: '才让扎西',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400',
-    level: '国家级传承人',
-    skills: ['唐卡绘制', '堆绣工艺'],
-    guardians: 3872,
-    intro: '青海省非遗唐卡代表性传承人，从事唐卡绘制40余年，培养学徒数百人。',
-    years: 42,
-    students: 128,
-    works: 56,
-    category: 'thangka',
-    activities: [
-      { id: '1', content: '今日完成唐卡开脸工序，历时3小时', time: '2小时前' },
-      { id: '2', content: '教授3名新学徒矿物颜料研磨技巧', time: '1天前' },
-      { id: '3', content: '参加非遗进校园活动', time: '3天前' }
-    ],
-    skillsSteps: [
-      { image: 'https://images.unsplash.com/photo-1549887534-1541e9326642?w=300', title: '起稿', desc: '用铅笔在画布上勾勒图案' },
-      { image: 'https://images.unsplash.com/photo-1549887534-1541e9326642?w=300', title: '上色', desc: '使用矿物颜料层层渲染' },
-      { image: 'https://images.unsplash.com/photo-1549887534-1541e9326642?w=300', title: '开脸', desc: '绘制佛像面部细节' },
-      { image: 'https://images.unsplash.com/photo-1549887534-1541e9326642?w=300', title: '开光', desc: '作品完成后进行开光仪式' }
-    ]
-  },
-  {
-    id: '2',
-    name: '卓玛吉',
-    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400',
-    level: '省级传承人',
-    skills: ['氆氇编织', '藏装制作'],
-    guardians: 2456,
-    intro: '西藏自治区氆氇编织技艺传承人，传承藏地传统纺织工艺。',
-    years: 28,
-    students: 56,
-    works: 89,
-    category: 'pulu',
-    activities: [
-      { id: '1', content: '今日编织氆氇3小时，完成一半', time: '5小时前' },
-      { id: '2', content: '研究传统天然染料配方', time: '2天前' }
-    ],
-    skillsSteps: [
-      { image: 'https://images.unsplash.com/photo-1558171813-4c088753af8f?w=300', title: '选毛', desc: '精选优质羊毛纤维' },
-      { image: 'https://images.unsplash.com/photo-1558171813-4c088753af8f?w=300', title: '纺线', desc: '手工纺制毛线' },
-      { image: 'https://images.unsplash.com/photo-1558171813-4c088753af8f?w=300', title: '染色', desc: '使用天然植物染色' },
-      { image: 'https://images.unsplash.com/photo-1558171813-4c088753af8f?w=300', title: '编织', desc: '传统织机编织氆氇' }
-    ]
-  },
-  {
-    id: '3',
-    name: '扎西多杰',
-    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400',
-    level: '省级传承人',
-    skills: ['堆绣制作', '唐卡修复'],
-    guardians: 1890,
-    intro: '青海省堆绣代表性传承人，精通堆绣技艺与古画修复。',
-    years: 35,
-    students: 42,
-    works: 67,
-    category: 'embroidery',
-    activities: [
-      { id: '1', content: '完成一幅堆绣作品的最后收尾工作', time: '1天前' },
-      { id: '2', content: '修复一幅清代唐卡', time: '4天前' }
-    ],
-    skillsSteps: [
-      { image: 'https://images.unsplash.com/photo-1549887534-1541e9326642?w=300', title: '设计', desc: '设计堆绣图案' },
-      { image: 'https://images.unsplash.com/photo-1549887534-1541e9326642?w=300', title: '裁剪', desc: '裁剪各色绸缎' },
-      { image: 'https://images.unsplash.com/photo-1549887534-1541e9326642?w=300', title: '堆贴', desc: '层层堆贴形成立体效果' },
-      { image: 'https://images.unsplash.com/photo-1549887534-1541e9326642?w=300', title: '缝制', desc: '精细缝制固定' }
-    ]
-  },
-  {
-    id: '4',
-    name: '仁青措',
-    avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400',
-    level: '市级传承人',
-    skills: ['藏香制作', '传统手工艺'],
-    guardians: 1234,
-    intro: '藏香制作技艺传承人，致力于传统藏香的研发与传承。',
-    years: 20,
-    students: 25,
-    works: 45,
-    category: 'pulu',
-    activities: [
-      { id: '1', content: '研发新型藏香配方', time: '3天前' }
-    ],
-    skillsSteps: [
-      { image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300', title: '配料', desc: '采集天然香料' },
-      { image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300', title: '研磨', desc: '研磨成粉' },
-      { image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300', title: '调配', desc: '按古方调配' },
-      { image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300', title: '成型', desc: '手工挤压成香' }
-    ]
+const activeFilter = ref('all')
+const craftsmen = ref<Craftsman[]>([])
+const loading = ref(false)
+
+async function fetchCraftsmen() {
+  loading.value = true
+  try {
+    const res = await request.get('/craftsmen', {
+      params: {
+        category: activeFilter.value === 'all' ? '' : activeFilter.value,
+        limit: 100
+      }
+    })
+    craftsmen.value = res.data.craftsmen
+  } catch (error) {
+    ElMessage.error('获取传承人数据失败')
+  } finally {
+    loading.value = false
   }
-])
+}
 
 const skillRankings = ref([
-  { id: '1', name: '唐卡绘制', count: 5678, percentage: 85, color: 'var(--accent-color)' },
-  { id: '2', name: '氆氇编织', count: 4321, percentage: 65, color: 'var(--secondary-color)' },
-  { id: '3', name: '堆绣工艺', count: 3456, percentage: 52, color: 'var(--primary-color)' },
-  { id: '4', name: '藏香制作', count: 2345, percentage: 35, color: 'var(--tertiary-color)' },
-  { id: '5', name: '藏装制作', count: 1890, percentage: 28, color: 'var(--accent-dark)' }
+  { id: '1', name: '唐卡绘制', count: 0, percentage: 85, color: 'var(--accent-color)' },
+  { id: '2', name: '氆氇编织', count: 0, percentage: 65, color: 'var(--secondary-color)' },
+  { id: '3', name: '堆绣工艺', count: 0, percentage: 52, color: 'var(--primary-color)' },
+  { id: '4', name: '藏香制作', count: 0, percentage: 35, color: 'var(--tertiary-color)' },
+  { id: '5', name: '藏装制作', count: 0, percentage: 28, color: 'var(--accent-dark)' }
 ])
 
-const activeFilter = ref('all')
+async function fetchStats() {
+  try {
+    const res = await request.get('/stats/overview')
+    // 这里我们可以根据后端返回的 post 数量或其它指标来模拟排序，
+    // 目前后端 overview 返回的是总人数展示
+    if (skillRankings.value[0]) skillRankings.value[0].count = res.data.posts * 12 + 500 // 模拟一些基础数据
+    if (skillRankings.value[1]) skillRankings.value[1].count = res.data.craftsmen * 45
+    if (skillRankings.value[2]) skillRankings.value[2].count = res.data.users * 2
+  } catch (error) {
+    console.error('获取统计数据失败')
+  }
+}
+
+onMounted(() => {
+  fetchCraftsmen()
+  fetchStats()
+})
+watch(activeFilter, fetchCraftsmen)
 const showDetail = ref(false)
 const showLearningDialog = ref(false)
 const selectedCraftsman = ref<Craftsman | null>(null)
@@ -342,11 +286,10 @@ const learningDate = ref(new Date())
 const learningTime = ref(new Date())
 
 const filteredCraftsmen = computed(() => {
-  if (activeFilter.value === 'all') return craftsmen.value
-  return craftsmen.value.filter(c => c.category === activeFilter.value)
+  return craftsmen.value
 })
 
-function getLevelType(level: string): string {
+function getLevelType(level: string): any {
   const types: Record<string, string> = {
     '国家级传承人': 'danger',
     '省级传承人': 'warning',
