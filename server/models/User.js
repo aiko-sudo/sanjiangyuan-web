@@ -12,6 +12,7 @@ const userSchema = new mongoose.Schema({
   guardianDays: { type: Number, default: 0 },
   guardianGrids: { type: Number, default: 0 },
   role: { type: String, enum: ['admin', 'editor'], default: 'editor' },
+  status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
   createdAt: { type: Date, default: Date.now }
 });
 

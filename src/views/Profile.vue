@@ -275,7 +275,7 @@ import {
   Camera, Edit, Coin, Calendar, Grid, CircleCheck, 
   CopyDocument, Star, ChatDotRound, Lock, SwitchButton 
 } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import request from '../api/request'
 
 const userInfo = ref({
@@ -342,13 +342,22 @@ async function saveProfile() {
   }
 }
 
-function handleLogout() {
-  localStorage.removeItem('token')
-  localStorage.removeItem('user')
-  ElMessage.success('已退出登录')
-  // 触发全局登录状态改变
-  window.dispatchEvent(new CustomEvent('auth-change'))
-  router.push('/')
+async function handleLogout() {
+  try {
+    await ElMessageBox.confirm('确定要退出登录吗？', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+      center: true
+    })
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+    ElMessage.success('已退出登录')
+    window.dispatchEvent(new CustomEvent('auth-change'))
+    router.push('/')
+  } catch {
+    // 用户取消退出
+  }
 }
 
 const checkinData = ref(['2024-07-10', '2024-07-11', '2024-07-12', '2024-07-13', '2024-07-14', '2024-07-15'])

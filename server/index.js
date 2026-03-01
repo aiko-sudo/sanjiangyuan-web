@@ -60,7 +60,8 @@ app.get('/api/init', async (req, res) => {
       username: 'admin',
       password: 'admin123',
       nickname: '超级管理员',
-      role: 'admin'
+      role: 'admin',
+      status: 'approved'
     });
     await admin.save();
     res.json({ message: '✅ 管理员创建成功', username: 'admin', password: 'admin123' });

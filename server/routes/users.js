@@ -41,8 +41,10 @@ router.put('/profile', auth, async (req, res) => {
 // 获取用户列表
 router.get('/', auth, async (req, res) => {
   try {
-    const { page = 1, limit = 20, keyword } = req.query;
-    const query = keyword ? { nickname: new RegExp(keyword, 'i') } : {};
+    const { page = 1, limit = 20, keyword, status } = req.query;
+    const query = {};
+    if (keyword) query.nickname = new RegExp(keyword, 'i');
+    if (status) query.status = status;
 
     const users = await User.find(query)
       .select('-password')
@@ -53,6 +55,20 @@ router.get('/', auth, async (req, res) => {
     const total = await User.countDocuments(query);
 
     res.json({ users, total, page: parseInt(page), totalPages: Math.ceil(total / limit) });
+  } catch (err) {
+    res.status(500).json({ message: '服务器错误' });
+  }
+});
+
+// 更新用户状态 (仅管理员)
+router.put('/:id/status', auth, adminOnly, async (req, res) => {
+  try {
+    const { status } = req.body;
+    if (!['approved', 'rejected', 'pending'].includes(status)) {
+      return res.status(400).json({ message: '无效的状态' });
+    }
+    const user = await User.findByIdAndUpdate(req.params.id, { status }, { new: true });
+    res.json({ message: '状态更新成功', user });
   } catch (err) {
     res.status(500).json({ message: '服务器错误' });
   }

@@ -30,6 +30,12 @@ const routes = [
     name: 'Profile',
     component: () => import('../views/Profile.vue'),
     meta: { title: '个人中心' }
+  },
+  {
+    path: '/admin',
+    name: 'Admin',
+    component: () => import('../views/Admin.vue'),
+    meta: { title: '后台管理', requiresAdmin: true }
   }
 ]
 
@@ -40,7 +46,18 @@ const router = createRouter({
 
 router.beforeEach((to, _from, next) => {
   document.title = (to.meta.title as string) || '三江源生态保护'
-  next()
+
+  if (to.meta.requiresAdmin) {
+    const userStr = localStorage.getItem('user')
+    const user = userStr ? JSON.parse(userStr) : null
+    if (user && user.role === 'admin') {
+      next()
+    } else {
+      next('/')
+    }
+  } else {
+    next()
+  }
 })
 
 export default router

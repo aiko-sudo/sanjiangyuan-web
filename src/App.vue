@@ -10,6 +10,7 @@ const showLoginDialog = ref(false)
 const authTab = ref('login')
 const loading = ref(false)
 const isLoggedIn = ref(!!localStorage.getItem('token'))
+const isAdmin = ref(false)
 
 const loginForm = ref({
   username: '',
@@ -24,9 +25,13 @@ const registerForm = ref({
 
 const checkLoginStatus = () => {
   isLoggedIn.value = !!localStorage.getItem('token')
+  const userStr = localStorage.getItem('user')
+  const user = userStr ? JSON.parse(userStr) : null
+  isAdmin.value = user && user.role === 'admin'
 }
 
 onMounted(() => {
+  checkLoginStatus()
   window.addEventListener('auth-change', checkLoginStatus)
 })
 
@@ -63,11 +68,9 @@ async function handleRegister() {
   
   loading.value = true
   try {
-    await request.post('/users', {
-      ...registerForm.value,
-      role: 'editor'
-    })
-    ElMessage.success('注册申请已提交，请联系管理员审核')
+    await request.post('/auth/register', registerForm.value)
+    ElMessage.success('注册申请已提交，请等待管理员审核')
+    showLoginDialog.value = false // 注册完成后关闭对话框
     authTab.value = 'login'
   } catch (error) {
     ElMessage.error('注册失败，用户名可能已存在')
@@ -103,7 +106,10 @@ async function handleRegister() {
           <router-link v-if="isLoggedIn" to="/profile" class="nav-item" :class="{ active: $route.path === '/profile' }">
             个人中心
           </router-link>
-          <a v-else href="javascript:;" class="nav-item" @click="showLoginDialog = true">
+          <router-link v-if="isAdmin" to="/admin" class="nav-item" :class="{ active: $route.path === '/admin' }">
+            后台管理
+          </router-link>
+          <a v-else-if="!isLoggedIn" href="javascript:;" class="nav-item" @click="showLoginDialog = true">
             登录/注册
           </a>
         </nav>
@@ -519,6 +525,40 @@ async function handleRegister() {
     &:hover {
       transform: none;
     }
+  }
+}
+
+/* 全局样式覆盖 */
+.el-message-box {
+  background-color: #fff !important;
+  border-radius: 12px !important;
+  border: none !important;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.15) !important;
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  margin: 0 !important;
+  
+  .el-message-box__title {
+    color: var(--primary-dark);
+    font-weight: 700;
+  }
+}
+
+/* 确保遮罩层不透明 */
+.v-modal {
+  opacity: 0.5 !important;
+  background: #000 !important;
+}
+
+.custom-msg-btn {
+  background-color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  
+  &:hover {
+    background-color: var(--primary-dark) !important;
+    border-color: var(--primary-dark) !important;
   }
 }
 </style>

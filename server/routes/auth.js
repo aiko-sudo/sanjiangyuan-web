@@ -15,6 +15,12 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ message: '用户名或密码错误' });
     }
 
+    // 审核状态检查 (除了管理员)
+    if (user.role !== 'admin' && user.status !== 'approved') {
+      const msg = user.status === 'pending' ? '账号正在审核中，请耐心等待' : '您的注册申请已被拒绝';
+      return res.status(403).json({ message: msg });
+    }
+
     const token = jwt.sign(
       { id: user._id, username: user.username, role: user.role },
       process.env.JWT_SECRET || 'secret',
@@ -24,6 +30,30 @@ router.post('/login', async (req, res) => {
     res.json({ token, user: { id: user._id, username: user.username, role: user.role } });
   } catch (err) {
     res.status(500).json({ message: '服务器错误' });
+  }
+});
+
+// 注册
+router.post('/register', async (req, res) => {
+  try {
+    const { username, password, nickname } = req.body;
+    const existing = await User.findOne({ username });
+    if (existing) {
+      return res.status(400).json({ message: '用户名已存在' });
+    }
+
+    const user = new User({
+      username,
+      password,
+      nickname,
+      role: 'editor',
+      status: 'pending'
+    });
+    await user.save();
+
+    res.status(201).json({ message: '注册申请已提交，请等待管理员审核' });
+  } catch (err) {
+    res.status(500).json({ message: '注册失败，服务器错误' });
   }
 });
 
@@ -62,7 +92,8 @@ router.get('/init', async (req, res) => {
       username: 'admin',
       password: 'admin123',
       nickname: '超级管理员',
-      role: 'admin'
+      role: 'admin',
+      status: 'approved'
     });
     await admin.save();
 
