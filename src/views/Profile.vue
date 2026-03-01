@@ -19,7 +19,7 @@
           <p class="user-intro">{{ userInfo.intro }}</p>
         </div>
         <div class="header-actions">
-          <el-button type="primary" plain>
+          <el-button type="primary" plain @click="handleEdit">
             <el-icon><Edit /></el-icon>
             编辑资料
           </el-button>
@@ -225,17 +225,52 @@
                 <el-icon><SwitchButton /></el-icon>
                 <span>注销账户</span>
               </div>
-              <el-button text type="danger">注销</el-button>
+              <el-button text type="danger" @click="handleLogout">注销</el-button>
             </div>
           </div>
         </section>
       </main>
     </div>
+
+    <!-- 编辑资料对话框 -->
+    <el-dialog
+      v-model="showEditDialog"
+      title="编辑个人资料"
+      width="500px"
+      destroy-on-close
+      class="custom-dialog"
+    >
+      <el-form :model="editForm" label-width="80px">
+        <el-form-item label="昵称">
+          <el-input v-model="editForm.nickname" placeholder="请输入昵称" />
+        </el-form-item>
+        <el-form-item label="头像地址">
+          <el-input v-model="editForm.avatar" placeholder="请输入头像 URL" />
+        </el-form-item>
+        <el-form-item label="个人简介">
+          <el-input
+            v-model="editForm.intro"
+            type="textarea"
+            :rows="3"
+            placeholder="打个招呼吧..."
+          />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="showEditDialog = false">取消</el-button>
+          <el-button type="primary" :loading="saving" @click="saveProfile">
+            保存
+          </el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { 
   Camera, Edit, Coin, Calendar, Grid, CircleCheck, 
   CopyDocument, Star, ChatDotRound, Lock, SwitchButton 
@@ -266,6 +301,54 @@ async function fetchUserProfile() {
   } catch (error) {
     console.log('尚未登录或获取用户信息失败')
   }
+}
+
+const router = useRouter()
+const showEditDialog = ref(false)
+const saving = ref(false)
+const editForm = ref({
+  nickname: '',
+  avatar: '',
+  intro: ''
+})
+
+function handleEdit() {
+  editForm.value = {
+    nickname: userInfo.value.nickname,
+    avatar: userInfo.value.avatar,
+    intro: userInfo.value.intro
+  }
+  showEditDialog.value = true
+}
+
+async function saveProfile() {
+  if (!editForm.value.nickname) {
+    return ElMessage.warning('昵称不能为空')
+  }
+  
+  saving.value = true
+  try {
+    const res: any = await request.put('/users/profile', editForm.value)
+    ElMessage.success('个人资料更新成功')
+    userInfo.value = {
+      ...userInfo.value,
+      ...res.user
+    }
+    showEditDialog.value = false
+  } catch (error) {
+    ElMessage.error('更新失败，请稍后重试')
+  } finally {
+    saving.value = false
+  }
+}
+
+function handleLogout() {
+  localStorage.removeItem('token')
+  localStorage.removeItem('user')
+  ElMessage.success('已退出登录')
+  // 触发全局登录状态改变
+  window.dispatchEvent(new CustomEvent('auth-change'))
+  router.push('/')
 }
 
 const checkinData = ref(['2024-07-10', '2024-07-11', '2024-07-12', '2024-07-13', '2024-07-14', '2024-07-15'])
@@ -339,6 +422,13 @@ function shareInvite() {
 </script>
 
 <style scoped lang="scss">
+/* 解决弹窗透明度问题 */
+:deep(.custom-dialog) {
+  background: #ffffff !important;
+  opacity: 1 !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15) !important;
+}
+
 .profile-page {
   min-height: 100vh;
   background: var(--bg-primary);

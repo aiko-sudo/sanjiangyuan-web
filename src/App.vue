@@ -1,3 +1,82 @@
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue'
+import { ElMessage } from 'element-plus'
+import request from './api/request'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+const showJoinDialog = ref(false)
+const showLoginDialog = ref(false)
+const authTab = ref('login')
+const loading = ref(false)
+const isLoggedIn = ref(!!localStorage.getItem('token'))
+
+const loginForm = ref({
+  username: '',
+  password: ''
+})
+
+const registerForm = ref({
+  username: '',
+  nickname: '',
+  password: ''
+})
+
+const checkLoginStatus = () => {
+  isLoggedIn.value = !!localStorage.getItem('token')
+}
+
+onMounted(() => {
+  window.addEventListener('auth-change', checkLoginStatus)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('auth-change', checkLoginStatus)
+})
+
+async function handleLogin() {
+  if (!loginForm.value.username || !loginForm.value.password) {
+    return ElMessage.warning('请填写用户名和密码')
+  }
+  
+  loading.value = true
+  try {
+    const res: any = await request.post('/auth/login', loginForm.value)
+    localStorage.setItem('token', res.token)
+    localStorage.setItem('user', JSON.stringify(res.user))
+    ElMessage.success('登录成功')
+    showLoginDialog.value = false
+    isLoggedIn.value = true
+    window.dispatchEvent(new CustomEvent('auth-change'))
+    router.push('/profile')
+  } catch (error) {
+    ElMessage.error('登录失败，请检查用户名或密码')
+  } finally {
+    loading.value = false
+  }
+}
+
+async function handleRegister() {
+  if (!registerForm.value.username || !registerForm.value.nickname || !registerForm.value.password) {
+    return ElMessage.warning('请填写完整注册信息')
+  }
+  
+  loading.value = true
+  try {
+    await request.post('/users', {
+      ...registerForm.value,
+      role: 'editor'
+    })
+    ElMessage.success('注册申请已提交，请联系管理员审核')
+    authTab.value = 'login'
+  } catch (error) {
+    ElMessage.error('注册失败，用户名可能已存在')
+  } finally {
+    loading.value = false
+  }
+}
+</script>
+
 <template>
   <div class="app-container">
     <!-- 导航栏 -->
@@ -21,9 +100,12 @@
           <router-link to="/eco" class="nav-item" :class="{ active: $route.path === '/eco' }">
             生态数据
           </router-link>
-          <router-link to="/profile" class="nav-item" :class="{ active: $route.path === '/profile' }">
+          <router-link v-if="isLoggedIn" to="/profile" class="nav-item" :class="{ active: $route.path === '/profile' }">
             个人中心
           </router-link>
+          <a v-else href="javascript:;" class="nav-item" @click="showLoginDialog = true">
+            登录/注册
+          </a>
         </nav>
         
         <div class="navbar-actions">
@@ -57,6 +139,39 @@
         <p class="qr-tip">（微信扫一扫关注）</p>
       </div>
     </el-dialog>
+
+    <!-- 登录/注册对话框 -->
+    <el-dialog v-model="showLoginDialog" width="400px" title="欢迎回来" class="auth-dialog custom-dialog" align-center>
+      <div class="auth-content">
+        <el-tabs v-model="authTab">
+          <el-tab-pane label="登录" name="login">
+            <el-form :model="loginForm" label-position="top">
+              <el-form-item label="用户名">
+                <el-input v-model="loginForm.username" placeholder="请输入用户名" />
+              </el-form-item>
+              <el-form-item label="密码">
+                <el-input v-model="loginForm.password" type="password" placeholder="请输入密码" show-password @keyup.enter="handleLogin" />
+              </el-form-item>
+              <el-button type="primary" class="submit-btn" :loading="loading" @click="handleLogin">立即登录</el-button>
+            </el-form>
+          </el-tab-pane>
+          <el-tab-pane label="注册" name="register">
+            <el-form :model="registerForm" label-position="top">
+              <el-form-item label="用户名">
+                <el-input v-model="registerForm.username" placeholder="建议使用手机号" />
+              </el-form-item>
+              <el-form-item label="昵称">
+                <el-input v-model="registerForm.nickname" placeholder="想一个好听的名字" />
+              </el-form-item>
+              <el-form-item label="密码">
+                <el-input v-model="registerForm.password" type="password" placeholder="请输入密码" show-password />
+              </el-form-item>
+              <el-button type="primary" class="submit-btn" :loading="loading" @click="handleRegister">通过审核后加入</el-button>
+            </el-form>
+          </el-tab-pane>
+        </el-tabs>
+      </div>
+    </el-dialog>
     
     <!-- 页脚 -->
     <footer class="footer">
@@ -84,13 +199,33 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref } from 'vue'
-
-const showJoinDialog = ref(false)
-</script>
-
 <style scoped lang="scss">
+/* 解决弹窗透明度问题 */
+:deep(.custom-dialog) {
+  background: #ffffff !important;
+  opacity: 1 !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15) !important;
+  
+  .el-dialog__header {
+    display: block !important;
+    padding: 20px 20px 10px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+}
+
+.auth-content {
+  padding: 0 10px 20px;
+  
+  .submit-btn {
+    width: 100%;
+    margin-top: 10px;
+    height: 44px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+  }
+}
+
 .app-container {
   min-height: 100vh;
   display: flex;

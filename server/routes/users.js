@@ -20,6 +20,24 @@ router.get('/profile', async (req, res) => {
   }
 });
 
+// 更新当前用户信息
+router.put('/profile', auth, async (req, res) => {
+  try {
+    const { nickname, avatar, intro } = req.body;
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: '用户不存在' });
+
+    if (nickname) user.nickname = nickname;
+    if (avatar) user.avatar = avatar;
+    if (intro) user.intro = intro;
+
+    await user.save();
+    res.json({ message: '更新成功', user });
+  } catch (err) {
+    res.status(500).json({ message: '服务器错误' });
+  }
+});
+
 // 获取用户列表
 router.get('/', auth, async (req, res) => {
   try {
