@@ -46,7 +46,32 @@ app.use(async (req, res, next) => {
 
 // 健康检查路由
 app.get('/api/health', (req, res) => {
-  res.status(200).json({ status: 'ok', time: new Date() });
+  res.status(200).json({
+    status: 'ok',
+    time: new Date(),
+    env: {
+      MONGODB_URI_SET: !!process.env.MONGODB_URI,
+      JWT_SECRET_SET: !!process.env.JWT_SECRET,
+      VERCEL: !!process.env.VERCEL
+    }
+  });
+});
+
+// 数据库测试路由
+app.get('/api/debug-db', async (req, res) => {
+  try {
+    const mongoose = require('mongoose');
+    const state = mongoose.connection.readyState;
+    const states = ['disconnected', 'connected', 'connecting', 'disconnecting'];
+
+    res.json({
+      database_state: states[state] || 'unknown',
+      uri_exists: !!process.env.MONGODB_URI,
+      uri_prefix: process.env.MONGODB_URI ? process.env.MONGODB_URI.substring(0, 15) + '...' : 'none'
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // 直接在 index.js 定义初始化路由，确保万无一失
