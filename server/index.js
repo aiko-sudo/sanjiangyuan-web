@@ -29,21 +29,18 @@ app.get('/api/auth/init', (req, res, next) => {
   next();
 });
 
-// 静态文件服务在 Vercel 上通常由前端构建输出处理
+// 静态文件服务
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// 数据库连接中间件 (尝试连接，但不长时间阻塞请求)
+// 数据库连接中间件
 app.use(async (req, res, next) => {
-  // 健康检查接口不需要数据库也能返回
   if (req.path === '/api/health') return next();
 
   try {
-    // 增加一个简单的超时心跳检查或直接尝试连接
     await connectToDatabase();
     next();
   } catch (error) {
-    // 只在访问具体 API 时报错，且不让进程挂起
-    console.error('❌ 数据库未连接，请检查 MongoDB 是否启动:', error.message);
+    console.error('❌ 数据库未连接:', error.message);
     if (req.path.startsWith('/api')) {
       return res.status(500).json({
         error: '数据库连接失败',
@@ -54,8 +51,6 @@ app.use(async (req, res, next) => {
     next();
   }
 });
-
-
 
 // 健康检查路由
 app.get('/api/health', (req, res) => {
@@ -87,7 +82,7 @@ app.get('/api/debug-db', async (req, res) => {
   }
 });
 
-// 直接在 index.js 定义初始化路由，确保万无一失
+// 直接在 index.js 定义初始化路由
 app.get('/api/init', async (req, res) => {
   try {
     const User = require('./models/User');
@@ -109,7 +104,7 @@ app.get('/api/init', async (req, res) => {
   }
 });
 
-// 路由
+// 加载业务路由
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/posts', require('./routes/posts'));
@@ -124,7 +119,7 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: '服务器错误' });
 });
 
-// 本地开发时启动服务器
+// 本地启动
 if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
   const PORT = process.env.PORT || 3000;
   app.listen(PORT, '0.0.0.0', () => {
@@ -132,5 +127,4 @@ if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
   });
 }
 
-// 导出 app 供 Vercel Serverless 使用
 module.exports = app;
