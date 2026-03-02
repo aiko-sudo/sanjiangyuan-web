@@ -10,7 +10,15 @@
     <div class="container">
       <!-- 传承人矩阵 -->
       <section class="craftsmen-section">
-        <div style="font-size: 10px; color: red;">DEBUG: Craftsmen Count: {{ craftsmen.length }} | Filter: {{ activeFilter }}</div>
+        <div style="font-size: 11px; color: #ff4d4f; background: #fff1f0; border: 1px solid #ffccc7; padding: 10px; margin-bottom: 20px; border-radius: 4px; white-space: pre-wrap; font-family: monospace;">
+          <b>🛠 DEBUG PANEL:</b>
+          Count: {{ craftsmen.length }} | Filter: {{ activeFilter }}
+          Status: {{ debugInfo.status }}
+          Msg: {{ debugInfo.message }}
+          Raw: {{ debugInfo.raw }}
+          URL: {{ debugInfo.url }}
+          <el-button size="small" type="primary" style="margin-top: 5px" @click="fetchCraftsmen">手动重试</el-button>
+        </div>
         <div class="section-header">
           <h2>传承人矩阵</h2>
           <div class="filter-tabs">
@@ -237,23 +245,31 @@ interface Craftsman {
 const activeFilter = ref('all')
 const craftsmen = ref<Craftsman[]>([])
 const loading = ref(false)
+const debugInfo = ref({ status: 'idle', message: '', raw: '', url: '' })
 
 async function fetchCraftsmen() {
   loading.value = true
+  debugInfo.value.status = 'fetching...'
+  debugInfo.value.url = '/api/craftsmen'
   try {
-    // 调试：直接访问后端端口，绕过可能的代理问题
-    const res: any = await request.get('http://localhost:3000/api/craftsmen', {
+    // 恢复使用相对路径，但记录详细日志
+    const res: any = await request.get('/craftsmen', {
       params: {
         category: activeFilter.value === 'all' ? '' : activeFilter.value,
         limit: 100
       }
     })
     console.log('Craftsmen API Raw Response:', res)
-    // 兼容性处理：有些环境可能返回包装对象，有些直接返回数组
+    debugInfo.value.status = 'success'
+    debugInfo.value.raw = JSON.stringify(res).substring(0, 100)
+    
     const data = res.craftsmen || res.data || res
     craftsmen.value = Array.isArray(data) ? data : (data.craftsmen || [])
     console.log('Craftsmen bound to ref:', craftsmen.value)
-  } catch (error) {
+  } catch (error: any) {
+    debugInfo.value.status = 'error'
+    debugInfo.value.message = error.message
+    debugInfo.value.raw = JSON.stringify(error.response?.data || 'NO DATA')
     console.error('获取传承人数据失败', error)
     ElMessage.error('获取传承人数据失败')
   } finally {
