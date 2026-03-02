@@ -176,12 +176,13 @@ import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 import { Warning, VideoCamera, View, Plus } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import type { Chart as ChartType } from 'chart.js'
-import L from 'leaflet'
-import 'leaflet/dist/leaflet.css'
+import type * as Leaflet from 'leaflet'
 
-// 使用全局的 Chart.js (通过 CDN 加载)
+// 使用全局的 Chart.js 和 Leaflet (通过 CDN 加载)
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const Chart: any = (window as any).Chart
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const L: typeof Leaflet = (window as any).L
 
 interface Station {
   id: string
@@ -219,6 +220,11 @@ let fundChart: ChartType | null = null
 let snowLeopardChart: ChartType | null = null
 
 function initCharts() {
+  if (!Chart) {
+    console.warn('Chart.js not loaded yet')
+    return
+  }
+
   // 捐赠柱状图
   if (donationChartRef.value) {
     donationChart = new Chart(donationChartRef.value, {
@@ -301,19 +307,30 @@ function adoptGrid() {
 let map: L.Map | null = null
 
 function initMap() {
-  if (!document.getElementById('map')) return
+  if (!L) {
+    console.warn('Leaflet not loaded yet')
+    return
+  }
+  
+  const mapEl = document.getElementById('map')
+  if (!mapEl) return
 
-  // 初始化地图中心点（三江源区域）
-  map = L.map('map', {
-    center: [34.50, 93.50],
-    zoom: 6,
-    zoomControl: false
-  })
+  try {
+    // 初始化地图中心点（三江源区域）
+    map = L.map('map', {
+      center: [34.50, 93.50],
+      zoom: 6,
+      zoomControl: false
+    })
 
-  // 添加卫星底图层
-  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EBP, and the GIS User Community'
-  }).addTo(map)
+    // 添加卫星底图层
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Tiles &copy; Esri'
+    }).addTo(map)
+  } catch (error) {
+    console.error('Failed to initialize map:', error)
+    return
+  }
 
   // 添加保护站标记
   stations.value.forEach(station => {
