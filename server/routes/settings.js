@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Setting = require('../models/Setting');
-const auth = require('../middleware/auth');
+const { auth } = require('../middleware/auth');
 
 // 获取指定 key 的设置
 router.get('/:key', async (req, res) => {
