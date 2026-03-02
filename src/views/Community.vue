@@ -53,7 +53,7 @@
       <!-- 主内容区 -->
       <main class="main-content">
         <!-- 发帖按钮 -->
-        <div class="create-post-area">
+        <div class="create-post-area" v-if="isLoggedIn">
           <el-button type="primary" size="large" @click="showCreateDialog = true">
             <el-icon><Edit /></el-icon>
             发布守护故事
@@ -182,13 +182,14 @@
         <div class="form-section">
           <div class="section-label">📸 添加图片</div>
           <el-upload
-            v-model:file-list="fileList"
+            :file-list="fileList"
             action="/api/upload"
             name="file"
             list-type="picture-card"
             :limit="9"
             :on-success="handleUploadSuccess"
             :on-error="handleUploadError"
+            :on-remove="handleRemove"
             class="story-upload"
           >
             <div class="upload-trigger">
@@ -228,7 +229,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, computed } from 'vue'
+import { ref, onMounted, watch, computed, onUnmounted } from 'vue'
 import { Edit, Star, ChatDotRound, Share, Plus, Top } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import request from '../api/request'
@@ -280,7 +281,12 @@ const availableTags = ['守护故事', '非遗', '摄影', '巡护', '野生动�
 
 const activeCategory = ref('all')
 const showCreateDialog = ref(false)
-const fileList = ref([])
+const fileList = ref<any[]>([])
+const isLoggedIn = ref(!!localStorage.getItem('token'))
+
+const checkAuth = () => {
+  isLoggedIn.value = !!localStorage.getItem('token')
+}
 const selectedTags = ref<string[]>([])
 const loading = ref(false)
 const submitting = ref(false)
@@ -318,6 +324,11 @@ async function fetchPosts(page = 1) {
 // 页面加载时获取帖子
 onMounted(() => {
   fetchPosts()
+  window.addEventListener('auth-change', checkAuth)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('auth-change', checkAuth)
 })
 
 // 切换分类时重新加载
@@ -382,6 +393,16 @@ function toggleTag(tag: string) {
 function handleUploadSuccess(res: any, file: any) {
   if (res.url) {
     file.url = res.url
+    file.status = 'success'
+    // 强制触发视图更新
+    fileList.value = [...fileList.value]
+  }
+}
+
+function handleRemove(file: any) {
+  const index = fileList.value.indexOf(file)
+  if (index > -1) {
+    fileList.value.splice(index, 1)
   }
 }
 

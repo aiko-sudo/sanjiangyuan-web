@@ -528,7 +528,25 @@ async function handleRegister() {
   }
 }
 
-/* 全局样式覆盖 */
+/* 确保遮罩层不透明 */
+.v-modal {
+  opacity: 0.5 !important;
+  background: #000 !important;
+}
+
+.custom-msg-btn {
+  background-color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  
+  &:hover {
+    background-color: var(--primary-dark) !important;
+    border-color: var(--primary-dark) !important;
+  }
+}
+</style>
+
+<!-- 全局样式，用于覆盖不在 #app 内的组件 -->
+<style lang="scss">
 .el-message-box {
   background-color: #ffffff !important;
   opacity: 1 !important;
@@ -555,19 +573,7 @@ async function handleRegister() {
   border: none !important;
 }
 
-/* 确保遮罩层不透明 */
-.v-modal {
-  opacity: 0.5 !important;
-  background: #000 !important;
-}
-
-.custom-msg-btn {
-  background-color: var(--primary-color) !important;
-  border-color: var(--primary-color) !important;
-  
-  &:hover {
-    background-color: var(--primary-dark) !important;
-    border-color: var(--primary-dark) !important;
-  }
+.el-overlay.is-message-box {
+  background-color: rgba(0, 0, 0, 0.5) !important;
 }
 </style>

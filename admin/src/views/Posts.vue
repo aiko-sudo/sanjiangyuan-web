@@ -91,7 +91,10 @@ const rejectPost = async (post: any) => {
 }
 
 const handleDelete = async (id: string) => {
-  await ElMessageBox.confirm('确定删除该帖子？', '警告', { type: 'warning' })
+  await ElMessageBox.confirm('确定删除该帖子？', '警告', { 
+    type: 'warning',
+    customClass: 'custom-confirm-box'
+  })
   try {
     await request.delete(`/posts/${id}`)
     ElMessage.success('删除成功')
