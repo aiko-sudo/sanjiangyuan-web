@@ -12,11 +12,13 @@ router.get('/', async (req, res) => {
     if (category && category !== 'all') query.category = category;
     if (keyword) query.name = new RegExp(keyword, 'i');
 
+    console.log('[Craftsmen API] Query:', query);
     const craftsmen = await Craftsman.find(query)
       .skip((page - 1) * limit)
       .limit(parseInt(limit))
       .sort({ guardians: -1 });
 
+    console.log(`[Craftsmen API] Found ${craftsmen.length} items`);
     const total = await Craftsman.countDocuments(query);
     res.json({ craftsmen, total, page: parseInt(page), totalPages: Math.ceil(total / limit) });
   } catch (err) {

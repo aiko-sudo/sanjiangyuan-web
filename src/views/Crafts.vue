@@ -10,6 +10,7 @@
     <div class="container">
       <!-- 传承人矩阵 -->
       <section class="craftsmen-section">
+        <div style="font-size: 10px; color: red;">DEBUG: Craftsmen Count: {{ craftsmen.length }} | Filter: {{ activeFilter }}</div>
         <div class="section-header">
           <h2>传承人矩阵</h2>
           <div class="filter-tabs">
@@ -246,8 +247,11 @@ async function fetchCraftsmen() {
         limit: 100
       }
     })
-    craftsmen.value = res.craftsmen
+    console.log('Craftsmen API Response:', res)
+    craftsmen.value = res.craftsmen || res
+    console.log('Craftsmen bound to ref:', craftsmen.value)
   } catch (error) {
+    console.error('获取传承人数据失败', error)
     ElMessage.error('获取传承人数据失败')
   } finally {
     loading.value = false

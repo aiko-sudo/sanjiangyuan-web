@@ -65,16 +65,18 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// 数据库测试路由
+// 数据库测试与调试路由
 app.get('/api/debug-db', async (req, res) => {
   try {
+    await connectToDatabase();
     const mongoose = require('mongoose');
-    const state = mongoose.connection.readyState;
-    const states = ['disconnected', 'connected', 'connecting', 'disconnecting'];
-
+    const Craftsman = require('./models/Craftsman');
+    const count = await Craftsman.countDocuments();
     res.json({
-      database_state: states[state] || 'unknown',
-      uri_exists: !!process.env.MONGODB_URI,
+      dbName: mongoose.connection.name,
+      readyState: mongoose.connection.readyState,
+      craftsmanCount: count,
+      host: mongoose.connection.host,
       uri_prefix: process.env.MONGODB_URI ? process.env.MONGODB_URI.substring(0, 15) + '...' : 'none'
     });
   } catch (err) {
@@ -85,6 +87,7 @@ app.get('/api/debug-db', async (req, res) => {
 // 直接在 index.js 定义初始化路由
 app.get('/api/init', async (req, res) => {
   try {
+    await connectToDatabase();
     const User = require('./models/User');
     const Setting = require('./models/Setting');
 
@@ -119,8 +122,11 @@ app.get('/api/init', async (req, res) => {
 
     // 初始化传承人
     const Craftsman = require('./models/Craftsman');
-    const existingCraftsmen = await Craftsman.findOne();
-    if (!existingCraftsmen) {
+    const craftsmanCount = await Craftsman.countDocuments();
+    console.log('Current craftsman count during init:', craftsmanCount);
+
+    // 如果数量为0，或者为了确保数据最新（开发阶段），执行初始化
+    if (craftsmanCount === 0) {
       const defaultCraftsmen = [
         {
           name: '更登达吉',
