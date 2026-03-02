@@ -65,25 +65,6 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// 数据库测试与调试路由
-app.get('/api/debug-db', async (req, res) => {
-  try {
-    await connectToDatabase();
-    const mongoose = require('mongoose');
-    const Craftsman = require('./models/Craftsman');
-    const count = await Craftsman.countDocuments();
-    res.json({
-      dbName: mongoose.connection.name,
-      readyState: mongoose.connection.readyState,
-      craftsmanCount: count,
-      host: mongoose.connection.host,
-      uri_prefix: process.env.MONGODB_URI ? process.env.MONGODB_URI.substring(0, 15) + '...' : 'none'
-    });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
 // 直接在 index.js 定义初始化路由
 app.get('/api/init', async (req, res) => {
   try {
@@ -123,7 +104,6 @@ app.get('/api/init', async (req, res) => {
     // 初始化传承人
     const Craftsman = require('./models/Craftsman');
     const craftsmanCount = await Craftsman.countDocuments();
-    console.log('Current craftsman count during init:', craftsmanCount);
 
     // 如果数量为0，或者为了确保数据最新（开发阶段），执行初始化
     if (craftsmanCount === 0) {
