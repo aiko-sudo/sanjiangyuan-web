@@ -25,18 +25,18 @@
         <div class="craftsmen-grid" v-loading="loading">
           <div 
             v-for="craftsman in craftsmen" 
-            :key="craftsman.id" 
+            :key="craftsman._id" 
             class="craftsman-card"
             @click="showCraftsmanDetail(craftsman)"
           >
             <div class="card-image">
-              <img :src="craftsman.avatar" :alt="craftsman.name" />
+              <img :src="craftsman.avatar || '/placeholder_avatar.png'" :alt="craftsman.name" @error="(e: any) => e.target.src = '/placeholder_avatar.png'" />
               <div class="card-overlay">
                 <span>查看详情</span>
               </div>
               <div class="guardian-badge">
                 <el-icon><Star /></el-icon>
-                {{ craftsman.guardians }}人守护
+                {{ craftsman.guardians || 0 }}人守护
               </div>
             </div>
             <div class="card-info">
@@ -58,6 +58,7 @@
               </div>
             </div>
           </div>
+          <el-empty v-if="!loading && craftsmen.length === 0" description="暂无相关传承人数据" />
         </div>
       </section>
       
@@ -216,6 +217,7 @@ import { ElMessage } from 'element-plus'
 import request from '../api/request'
 
 interface Craftsman {
+  _id: string
   id: string
   name: string
   avatar: string
