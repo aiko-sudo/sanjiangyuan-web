@@ -10,22 +10,8 @@
     <div class="eco-container">
       <!-- 左侧地图区域 -->
       <section class="map-section">
-        <div class="map-container">
+        <div class="map-container shadow-sm">
           <div id="map" class="leaflet-map"></div>
-          
-          <!-- 保护站标记 -->
-          <div 
-            v-for="station in stations" 
-            :key="station.id"
-            class="station-marker"
-            :style="{ left: station.x + 'px', top: station.y + 'px' }"
-            @click="showStationDetail(station)"
-          >
-            <div class="marker-icon">
-              <el-icon><Location /></el-icon>
-            </div>
-            <div class="marker-label">{{ station.name }}</div>
-          </div>
         </div>
         
         <!-- 我的守护网格 -->
@@ -186,10 +172,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
-import { Location, Warning, VideoCamera, View, Plus } from '@element-plus/icons-vue'
+import { ref, onMounted, onUnmounted, nextTick } from 'vue'
+import { Warning, VideoCamera, View, Plus } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import type { Chart as ChartType } from 'chart.js'
+import L from 'leaflet'
+import 'leaflet/dist/leaflet.css'
 
 // 使用全局的 Chart.js (通过 CDN 加载)
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -198,8 +186,8 @@ const Chart: any = (window as any).Chart
 interface Station {
   id: string
   name: string
-  x: number
-  y: number
+  lat: number
+  lng: number
   guardian: string
   patrolDistance: number
   wildlifeCount: number
@@ -207,9 +195,9 @@ interface Station {
 }
 
 const stations = ref<Station[]>([
-  { id: '1', name: '可可西里不冻泉保护站', x: 200, y: 150, guardian: '阿青', patrolDistance: 23, wildlifeCount: 12, image: '/kkxl.png' },
-  { id: '2', name: '沱沱河保护站', x: 350, y: 200, guardian: '扎西', patrolDistance: 18, wildlifeCount: 8, image: '/zanglingyang-01.jpg' },
-  { id: '3', name: '索加保护站', x: 280, y: 280, guardian: '卓玛', patrolDistance: 32, wildlifeCount: 15, image: '/zanghu_01.jpg' }
+  { id: '1', name: '可可西里不冻泉保护站', lat: 35.23, lng: 93.30, guardian: '阿青', patrolDistance: 23, wildlifeCount: 12, image: '/kkxl.png' },
+  { id: '2', name: '沱沱河保护站', lat: 34.21, lng: 92.43, guardian: '扎西', patrolDistance: 18, wildlifeCount: 8, image: '/zanglingyang-01.jpg' },
+  { id: '3', name: '索加保护站', lat: 33.56, lng: 94.21, guardian: '卓玛', patrolDistance: 32, wildlifeCount: 15, image: '/zanghu_01.jpg' }
 ])
 
 const speciesList = ref([
@@ -310,8 +298,48 @@ function adoptGrid() {
   showStationDialog.value = false
 }
 
-onMounted(() => {
+let map: L.Map | null = null
+
+function initMap() {
+  if (!document.getElementById('map')) return
+
+  // 初始化地图中心点（三江源区域）
+  map = L.map('map', {
+    center: [34.50, 93.50],
+    zoom: 6,
+    zoomControl: false
+  })
+
+  // 添加卫星底图层
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EBP, and the GIS User Community'
+  }).addTo(map)
+
+  // 添加保护站标记
+  stations.value.forEach(station => {
+    const customIcon = L.divIcon({
+      className: 'custom-station-marker',
+      html: `
+        <div class="marker-wrapper">
+          <div class="marker-icon"><i class="el-icon-Location"></i></div>
+          <div class="marker-label">${station.name}</div>
+        </div>
+      `,
+      iconSize: [40, 40],
+      iconAnchor: [20, 40]
+    })
+
+    const marker = L.marker([station.lat, station.lng], { icon: customIcon }).addTo(map!)
+    marker.on('click', () => {
+      showStationDetail(station)
+    })
+  })
+}
+
+onMounted(async () => {
   initCharts()
+  await nextTick()
+  initMap()
 })
 
 onUnmounted(() => {
@@ -363,44 +391,49 @@ onUnmounted(() => {
     
     .leaflet-map {
       width: 100%;
-      height: 500px;
-      background: linear-gradient(135deg, var(--primary-dark) 0%, #2d5a4a 50%, var(--primary-dark) 100%);
+      height: 600px;
+      background: #1a3a5c;
+      z-index: 1;
     }
-    
-    .station-marker {
-      position: absolute;
-      cursor: pointer;
-      z-index: 10;
+  }
+
+  :deep(.custom-station-marker) {
+    .marker-wrapper {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       
       .marker-icon {
-        width: 40px;
-        height: 40px;
+        width: 32px;
+        height: 32px;
         background: var(--accent-color);
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         color: #fff;
-        font-size: 20px;
-        box-shadow: 0 2px 8px rgba(212, 175, 55, 0.4);
-        transition: transform 0.3s ease;
+        font-size: 18px;
+        box-shadow: 0 4px 12px rgba(212, 175, 55, 0.6);
+        border: 2px solid #fff;
         
-        &:hover {
-          transform: scale(1.2);
+        &::before {
+          content: '📍';
+          font-size: 14px;
         }
       }
       
       .marker-label {
-        position: absolute;
-        top: 44px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: var(--bg-dark-overlay);
+        margin-top: 6px;
+        background: rgba(26, 58, 92, 0.9);
         color: #fff;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 12px;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 11px;
         white-space: nowrap;
+        backdrop-filter: blur(4px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
       }
     }
   }

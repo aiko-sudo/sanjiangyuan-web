@@ -76,10 +76,8 @@
                   'has-checkin': checkinData.includes(data.day)
                 }"
               >
-                {{ data.day.split('-').slice(2).join('-') }}
-                <el-icon v-if="checkinData.includes(data.day)" class="checkin-icon">
-                  <CircleCheck />
-                </el-icon>
+                <span class="day-number">{{ data.day.split('-').pop() }}</span>
+                <div v-if="checkinData.includes(data.day)" class="checkin-dot"></div>
               </div>
             </template>
           </el-calendar>
@@ -272,7 +270,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { 
-  Camera, Edit, Coin, Calendar, Grid, CircleCheck, 
+  Camera, Edit, Coin, Calendar, Grid, 
   CopyDocument, Star, ChatDotRound, Lock, SwitchButton 
 } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
@@ -645,9 +643,42 @@ function shareInvite() {
 
   .calendar-card {
     :deep(.el-calendar) {
+      --el-calendar-cell-width: 32px;
+      border: none;
+      
+      .el-calendar__header {
+        padding: 0 0 10px;
+        border-bottom: none;
+        
+        .el-calendar__title {
+          font-size: 13px;
+        }
+      }
+
       .el-calendar-table {
+        thead th {
+          padding: 8px 0;
+          font-size: 12px;
+          color: var(--text-muted);
+        }
+
         .el-calendar-day {
-          height: 40px;
+          height: 36px;
+          padding: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          
+          &:hover {
+            background-color: var(--bg-hover);
+          }
+        }
+        
+        td.is-selected {
+          .el-calendar-day {
+            background-color: var(--primary-light-9);
+            border-radius: 8px;
+          }
         }
       }
     }
@@ -656,26 +687,34 @@ function shareInvite() {
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      height: 100%;
-      font-size: 12px;
+      gap: 2px;
       
-      &.has-checkin {
-        color: var(--primary-color);
-        font-weight: 600;
+      .day-number {
+        font-size: 13px;
+        color: var(--text-primary);
       }
       
-      .checkin-icon {
-        font-size: 10px;
-        margin-top: 2px;
+      &.has-checkin {
+        .day-number {
+          color: var(--primary-color);
+          font-weight: 700;
+        }
+      }
+      
+      .checkin-dot {
+        width: 4px;
+        height: 4px;
+        background: var(--primary-color);
+        border-radius: 50%;
       }
     }
     
     .calendar-hint {
       text-align: center;
-      font-size: 12px;
+      font-size: 11px;
       color: var(--text-muted);
-      margin-top: 12px;
+      margin-top: 10px;
+      opacity: 0.8;
     }
   }
   
