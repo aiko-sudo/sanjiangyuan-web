@@ -22,7 +22,7 @@
           <span>传承人管理</span>
         </el-menu-item>
         <el-menu-item index="/settings">
-          <el-icon><Setting /></el-icon>
+          <el-icon><SettingIcon /></el-icon>
           <span>系统设置</span>
         </el-menu-item>
       </el-menu>
@@ -50,7 +50,7 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { DataBoard, User, Document, Star, Setting, ArrowDown } from '@element-plus/icons-vue'
+import { DataBoard, User, Document, Star, Setting as SettingIcon, ArrowDown } from '@element-plus/icons-vue'
 import { ElMessageBox, ElMessage } from 'element-plus'
 
 const router = useRouter()
