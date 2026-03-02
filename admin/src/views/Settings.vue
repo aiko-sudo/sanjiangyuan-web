@@ -22,6 +22,24 @@
         </el-form-item>
       </el-form>
     </el-card>
+
+    <el-card class="settings-card">
+      <h3>生态数据页 - 生态故事</h3>
+      <p>修改生态数据中心页面显示的“生态故事”内容（建议约500字）</p>
+      <el-form :model="storyForm" label-position="top">
+        <el-form-item label="文章内容">
+          <el-input 
+            v-model="storyForm.value" 
+            type="textarea" 
+            :rows="12" 
+            placeholder="请输入生态故事内容..."
+          />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="success" @click="saveStory" :loading="storyLoading">保存文章</el-button>
+        </el-form-item>
+      </el-form>
+    </el-card>
   </div>
 </template>
 
@@ -33,6 +51,33 @@ import request from '@/api/request'
 const loading = ref(false)
 const pwLoading = ref(false)
 const passwordForm = reactive({ oldPassword: '', newPassword: '' })
+const storyLoading = ref(false)
+const storyForm = reactive({ value: '' })
+
+const fetchStory = async () => {
+  try {
+    const res = await request.get('/settings/eco_story')
+    storyForm.value = res.value
+  } catch (err) {
+    console.error('Failed to fetch story')
+  }
+}
+
+const saveStory = async () => {
+  storyLoading.value = true
+  try {
+    await request.put('/settings/eco_story', { value: storyForm.value })
+    ElMessage.success('文章保存成功')
+  } catch (err: any) {
+    ElMessage.error(err.response?.data?.message || '保存失败')
+  } finally {
+    storyLoading.value = false
+  }
+}
+
+onMounted(() => {
+  fetchStory()
+})
 
 const initAdmin = async () => {
   loading.value = true

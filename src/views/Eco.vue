@@ -38,6 +38,17 @@
             </div>
           </div>
         </div>
+
+        <!-- 生态故事 -->
+        <div class="eco-story-section card mt-4">
+          <div class="story-header">
+            <h3>📖 生态故事</h3>
+          </div>
+          <div class="story-content" v-if="ecoStory">
+            <p v-for="(p, i) in ecoStory.split('\n')" :key="i">{{ p }}</p>
+          </div>
+          <el-skeleton v-else :rows="5" animated />
+        </div>
       </section>
       
       <!-- 右侧数据面板 -->
@@ -214,6 +225,19 @@ const snowLeopardChartRef = ref<HTMLCanvasElement | null>(null)
 
 const showStationDialog = ref(false)
 const selectedStation = ref<Station | null>(null)
+const ecoStory = ref('')
+
+async function fetchEcoStory() {
+  try {
+    const res = await fetch(`${import.meta.env.VITE_API_BASE_URL || '/api'}/settings/eco_story`)
+    if (res.ok) {
+      const data = await res.json()
+      ecoStory.value = data.value
+    }
+  } catch (err) {
+    console.error('Failed to fetch eco story:', err)
+  }
+}
 
 let donationChart: ChartType | null = null
 let fundChart: ChartType | null = null
@@ -357,6 +381,7 @@ onMounted(async () => {
   initCharts()
   await nextTick()
   initMap()
+  fetchEcoStory()
 })
 
 onUnmounted(() => {
@@ -500,7 +525,43 @@ onUnmounted(() => {
       }
     }
   }
+
+  .eco-story-section {
+    background: #fff;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+
+    .story-header {
+      margin-bottom: 20px;
+      border-bottom: 1px solid #f0f0f0;
+      padding-bottom: 12px;
+      
+      h3 {
+        font-size: 20px;
+        color: var(--primary-color);
+        margin: 0;
+      }
+    }
+
+    .story-content {
+      p {
+        font-size: 15px;
+        line-height: 1.8;
+        color: #444;
+        margin-bottom: 16px;
+        text-indent: 2em;
+        text-align: justify;
+        
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+    }
+  }
 }
+
+.mt-4 { margin-top: 1.5rem; }
 
 .data-panel {
   display: flex;

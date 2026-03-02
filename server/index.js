@@ -86,18 +86,38 @@ app.get('/api/debug-db', async (req, res) => {
 app.get('/api/init', async (req, res) => {
   try {
     const User = require('./models/User');
-    const existing = await User.findOne({ username: 'admin' });
-    if (existing) return res.json({ message: '管理员已存在', user: 'admin' });
+    const Setting = require('./models/Setting');
 
-    const admin = new User({
-      username: 'admin',
-      password: 'admin123',
-      nickname: '超级管理员',
-      role: 'admin',
-      status: 'approved'
-    });
-    await admin.save();
-    res.json({ message: '✅ 管理员创建成功', username: 'admin', password: 'admin123' });
+    // 初始化管理员
+    const existingAdmin = await User.findOne({ username: 'admin' });
+    if (!existingAdmin) {
+      const admin = new User({
+        username: 'admin',
+        password: 'admin123',
+        nickname: '超级管理员',
+        role: 'admin',
+        status: 'approved'
+      });
+      await admin.save();
+    }
+
+    // 初始化生态故事
+    const existingStory = await Setting.findOne({ key: 'eco_story' });
+    if (!existingStory) {
+      const defaultStory = new Setting({
+        key: 'eco_story',
+        type: 'text',
+        description: '生态数据中心页面显示的生态故事文章',
+        value: `青海，这片被誉为“中华水塔”的大地，正书写着人与自然和谐共生的壮丽篇章。作为长江、黄河、澜沧江的发源地，三江源不仅是中国重要的生态安全屏障，更是全球高寒生物多样性最集中的区域之一。
+
+近年来，随着国家公园体制试点的深入开展，这里的生态环境发生了巨大变化。曾经稀见的雪豹、藏羚羊如今频繁出现在红外相机的镜头中，甚至走入了牧民的视野。草地逐渐恢复生机，湿地面积持续扩大，水质始终保持在优良水平。
+
+但这背后是无数守护者的默默付出。成千上万名牧民生态管护员放下了牧鞭，拿起了巡护手册，巡回在雪山草地之间。他们用双脚丈量国土，用初心守护江源。他们的故事，是关于生命、关于家园、关于未来最动人的注脚。保护三江源，不仅是为了青海，更是为了中国、为了世界。让我们通过数据，见证这里的每一次心跳。`
+      });
+      await defaultStory.save();
+    }
+
+    res.json({ message: '✅ 初始化成功', username: 'admin', password: 'admin123' });
   } catch (err) {
     console.error('Init error:', err);
     res.status(500).json({ error: '初始化失败', details: err.message });
@@ -112,6 +132,7 @@ app.use('/api/craftsmen', require('./routes/craftsmen'));
 app.use('/api/stats', require('./routes/stats'));
 app.use('/api/community', require('./routes/community'));
 app.use('/api/upload', require('./routes/upload'));
+app.use('/api/settings', require('./routes/settings'));
 
 // 错误处理
 app.use((err, req, res, next) => {
