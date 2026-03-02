@@ -1,30 +1,44 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const Craftsman = require('../models/Craftsman');
+const connectToDatabase = require('../db');
 const { auth, adminOnly } = require('../middleware/auth');
 
 const router = express.Router();
 
 // 获取传承人列表 (公开)
 router.get('/', async (req, res) => {
-  try {
-    const { page = 1, limit = 20, category, keyword } = req.query;
-    const query = {};
-    if (category && category !== 'all') query.category = category;
-    if (keyword) query.name = new RegExp(keyword, 'i');
+  await connectToDatabase();
+  const { page = 1, limit = 20, category, keyword } = req.query;
+  const query = {};
+  if (category && category !== 'all') query.category = category;
+  if (keyword) query.name = new RegExp(keyword, 'i');
 
-    console.log('[Craftsmen API] Query:', query);
-    const craftsmen = await Craftsman.find(query)
-      .skip((page - 1) * limit)
-      .limit(parseInt(limit))
-      .sort({ guardians: -1 });
+  console.log('[Craftsmen API] Query:', query);
+  const craftsmen = await Craftsman.find(query)
+    .skip((page - 1) * limit)
+    .limit(parseInt(limit))
+    .sort({ guardians: -1 });
 
-    console.log(`[Craftsmen API] Found ${craftsmen.length} items`);
-    const total = await Craftsman.countDocuments(query);
-    res.json({ craftsmen, total, page: parseInt(page), totalPages: Math.ceil(total / limit) });
-  } catch (err) {
-    console.error('Error fetching craftsmen:', err);
-    res.status(500).json({ message: '服务器错误', error: err.message });
-  }
+  console.log(`[Craftsmen API] Found ${craftsmen.length} items`);
+  const total = await Craftsman.countDocuments(query);
+
+  res.json({
+    craftsmen,
+    total,
+    page: parseInt(page),
+    totalPages: Math.ceil(total / limit),
+    _debug: {
+      db: mongoose.connection.name,
+      host: mongoose.connection.host,
+      state: mongoose.connection.readyState,
+      totalInColl: await Craftsman.countDocuments({})
+    }
+  });
+} catch (err) {
+  console.error('Error fetching craftsmen:', err);
+  res.status(500).json({ message: '服务器错误', error: err.message, stack: err.stack });
+}
 });
 
 // 获取单个传承人 (公开)
