@@ -546,7 +546,7 @@ onUnmounted(() => {
 
     .story-content {
       p {
-        font-size: 15px;
+        font-size: 18px;
         line-height: 1.8;
         color: #444;
         margin-bottom: 16px;

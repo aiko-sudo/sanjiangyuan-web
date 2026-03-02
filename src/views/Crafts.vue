@@ -248,7 +248,7 @@ async function fetchCraftsmen() {
       }
     })
     console.log('Craftsmen API Response:', res)
-    craftsmen.value = res.craftsmen || res
+    craftsmen.value = res.craftsmen || []
     console.log('Craftsmen bound to ref:', craftsmen.value)
   } catch (error) {
     console.error('获取传承人数据失败', error)
