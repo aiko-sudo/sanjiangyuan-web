@@ -20,6 +20,31 @@ const userQuery = ref({ page: 1, limit: 10, total: 0 })
 const auditQuery = ref({ page: 1, limit: 10, total: 0 })
 const postQuery = ref({ page: 1, limit: 10, total: 0 })
 
+// 设置相关
+const settingsLoading = ref(false)
+const ecoStoryForm = ref({ value: '' })
+
+const fetchSettings = async () => {
+  try {
+    const res: any = await request.get('/settings/eco_story')
+    ecoStoryForm.value.value = res.value
+  } catch (error) {
+    console.error('Fetch settings failed')
+  }
+}
+
+const saveEcoStory = async () => {
+  settingsLoading.value = true
+  try {
+    await request.put('/settings/eco_story', { value: ecoStoryForm.value.value })
+    ElMessage.success('发布成功')
+  } catch (error: any) {
+    ElMessage.error(error.response?.data?.message || '保存失败')
+  } finally {
+    settingsLoading.value = false
+  }
+}
+
 const fetchStats = async () => {
   try {
     const res: any = await request.get('/posts/stats/overview')
@@ -139,6 +164,7 @@ onMounted(() => {
   fetchUsers()
   fetchAuditUsers()
   fetchPosts()
+  fetchSettings()
 })
 </script>
 
@@ -297,6 +323,26 @@ onMounted(() => {
             />
           </div>
         </el-tab-pane>
+
+        <el-tab-pane label="系统设置" name="settings">
+          <div class="settings-content">
+            <div class="setting-card">
+              <h3>📖 生态中心 - 生态故事</h3>
+              <p class="hint">修改生态数据页面显示的介绍文章（支持换行）</p>
+              <el-input
+                v-model="ecoStoryForm.value"
+                type="textarea"
+                :rows="15"
+                placeholder="请输入生态故事内容..."
+              />
+              <div class="setting-actions">
+                <el-button type="primary" @click="saveEcoStory" :loading="settingsLoading">
+                  保存并发布
+                </el-button>
+              </div>
+            </div>
+          </div>
+        </el-tab-pane>
       </el-tabs>
     </div>
   </div>
@@ -404,5 +450,31 @@ onMounted(() => {
   margin-top: 20px;
   display: flex;
   justify-content: center;
+}
+
+.settings-content {
+  padding: 10px;
+  
+  .setting-card {
+    max-width: 800px;
+    
+    h3 {
+      font-size: 18px;
+      margin-bottom: 8px;
+      color: var(--primary-color);
+    }
+    
+    .hint {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 20px;
+    }
+    
+    .setting-actions {
+      margin-top: 20px;
+      display: flex;
+      justify-content: flex-end;
+    }
+  }
 }
 </style>
