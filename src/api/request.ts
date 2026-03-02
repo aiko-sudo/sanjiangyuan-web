@@ -1,7 +1,15 @@
 import axios from 'axios'
 
+const baseURL = import.meta.env.VITE_API_BASE_URL || '/api'
+console.log('--- API Client Configured ---')
+console.log('Base URL:', baseURL)
+console.log('Env:', import.meta.env)
+if (typeof window !== 'undefined') {
+  (window as any).__API_BASE_URL = baseURL
+}
+
 const request = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
+  baseURL,
   timeout: 15000,
   headers: {
     'Content-Type': 'application/json'

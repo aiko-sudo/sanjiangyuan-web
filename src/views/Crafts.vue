@@ -241,14 +241,17 @@ const loading = ref(false)
 async function fetchCraftsmen() {
   loading.value = true
   try {
-    const res: any = await request.get('/craftsmen', {
+    // 调试：直接访问后端端口，绕过可能的代理问题
+    const res: any = await request.get('http://localhost:3000/api/craftsmen', {
       params: {
         category: activeFilter.value === 'all' ? '' : activeFilter.value,
         limit: 100
       }
     })
-    console.log('Craftsmen API Response:', res)
-    craftsmen.value = res.craftsmen || []
+    console.log('Craftsmen API Raw Response:', res)
+    // 兼容性处理：有些环境可能返回包装对象，有些直接返回数组
+    const data = res.craftsmen || res.data || res
+    craftsmen.value = Array.isArray(data) ? data : (data.craftsmen || [])
     console.log('Craftsmen bound to ref:', craftsmen.value)
   } catch (error) {
     console.error('获取传承人数据失败', error)
