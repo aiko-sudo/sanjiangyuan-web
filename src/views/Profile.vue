@@ -348,7 +348,8 @@ async function handleLogout() {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
       type: 'warning',
-      center: true
+      center: true,
+      customClass: 'custom-confirm-box'
     })
     localStorage.removeItem('token')
     localStorage.removeItem('user')

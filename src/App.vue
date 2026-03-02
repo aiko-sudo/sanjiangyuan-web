@@ -530,20 +530,29 @@ async function handleRegister() {
 
 /* 全局样式覆盖 */
 .el-message-box {
-  background-color: #fff !important;
-  border-radius: 12px !important;
+  background-color: #ffffff !important;
+  opacity: 1 !important;
+  border-radius: 16px !important;
   border: none !important;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.15) !important;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2) !important;
   position: fixed !important;
   top: 50% !important;
   left: 50% !important;
   transform: translate(-50%, -50%) !important;
   margin: 0 !important;
+  z-index: 3000 !important;
   
-  .el-message-box__title {
-    color: var(--primary-dark);
-    font-weight: 700;
+  .el-message-box__header {
+    display: block !important;
+    padding: 24px 24px 12px !important;
+    border-bottom: 1px solid #f0f0f0;
   }
+}
+
+.custom-confirm-box {
+  background-color: #ffffff !important;
+  opacity: 1 !important;
+  border: none !important;
 }
 
 /* 确保遮罩层不透明 */

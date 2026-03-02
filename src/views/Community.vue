@@ -398,7 +398,10 @@ async function submitPost() {
   submitting.value = true
   try {
     const uploadedImages = fileList.value
-      .map((f: any) => f.response?.url || f.url)
+      .map((f: any) => {
+        // 优先使用服务器返回的 url
+        return f.response?.url || f.url
+      })
       .filter(Boolean)
 
     const res: any = await request.post('/community', {
