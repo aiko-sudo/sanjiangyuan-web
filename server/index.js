@@ -1,8 +1,12 @@
 const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '../.env') });
 const express = require('express');
 const cors = require('cors');
-const connectToDatabase = require('./db'); // 使用缓存连接
+const connectToDatabase = require('./db');
+
+// Vercel 生产环境下从 process.env 读取，不需要读取 .env 文件
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+  require('dotenv').config({ path: path.join(__dirname, '../.env') });
+}
 
 const app = express();
 
@@ -10,13 +14,22 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// 日志中间件 (优先执行，用于调试到底请求卡在哪里)
+// 记录所有访问 (Vercel Logs 中可见)
 app.use((req, res, next) => {
   console.log(`[${new Date().toLocaleTimeString()}] ${req.method} ${req.url}`);
   next();
 });
 
-// 静态文件服务在 Vercel 上通常由前端构建输出处理，但在本地或特定配置下保留无妨
+// 重定向 /api/auth/init 到 /api/init (双保险)
+app.get('/api/auth/init', (req, res, next) => {
+  if (req.method === 'GET') {
+    console.log('Redirecting /api/auth/init to /api/init');
+    return res.redirect(307, '/api/init');
+  }
+  next();
+});
+
+// 静态文件服务在 Vercel 上通常由前端构建输出处理
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // 数据库连接中间件 (尝试连接，但不长时间阻塞请求)
