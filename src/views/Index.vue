@@ -176,10 +176,7 @@ const featuredPosts = ref([
       level: '黄金守护者'
     },
     content: '今天在可可西里不冻泉保护站巡护时，幸运地拍到了雪豹的踪迹！这是我们保护区本月第32次监测到雪豹了。',
-    images: [
-      'https://images.unsplash.com/photo-1549887534-1541e9326642?w=800&q=80',
-      'https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?w=800&q=80'
-    ],
+    images: [],
     likes: 128,
     comments: 32,
     createTime: new Date()
@@ -192,9 +189,7 @@ const featuredPosts = ref([
       level: '白银守护者'
     },
     content: '跟着传承人学习唐卡绘制已经一个月了，今天终于完成了第一幅作品！感谢才让扎西大师的悉心指导。',
-    images: [
-      'https://images.unsplash.com/photo-1599576838383-a20cda72e259?w=800&q=80'
-    ],
+    images: [],
     likes: 256,
     comments: 45,
     createTime: new Date(Date.now() - 3600000)
@@ -330,7 +325,7 @@ onUnmounted(() => {
     display: block;
     font-size: 5rem;
     font-weight: 800;
-    color: #ffffff;
+    color: #1f6c3d;
     /* 柔和的光晕阴影，而非硬黑阴影 */
     text-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); 
     margin-bottom: 20px;
@@ -340,7 +335,7 @@ onUnmounted(() => {
   .subtitle-line {
     display: block;
     font-size: 1.8rem;
-    color: rgba(255, 255, 255, 0.95);
+    color: rgba(38, 139, 82, 0.95);
     letter-spacing: 8px;
     font-weight: 500;
     text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);

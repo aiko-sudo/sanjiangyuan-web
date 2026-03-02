@@ -1,6 +1,6 @@
 <template>
   <div class="community-page">
-  <div class="page-header-common" style="background-image: url('https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?w=1600');">
+  <div class="page-header-common" style="background-image: url('/snow_leopard_bg.png');">
     <div class="header-content">
       <h1>共创社区</h1>
       <p>分享你的守护故事，遇见志同道合的守护者</p>
