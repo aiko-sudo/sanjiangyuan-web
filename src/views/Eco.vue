@@ -128,7 +128,7 @@
         <div class="vr-section card">
           <h3>🌐 VR云探访</h3>
           <div class="vr-preview">
-            <img src="https://images.unsplash.com/photo-1575550959106-5a7defe28b56?w=400" alt="VR预览" />
+            <img src="/kkxl.png?w=400" alt="VR预览" />
             <div class="vr-badge">
               <el-icon><VideoCamera /></el-icon>
               LIVE
@@ -207,16 +207,16 @@ interface Station {
 }
 
 const stations = ref<Station[]>([
-  { id: '1', name: '可可西里不冻泉保护站', x: 200, y: 150, guardian: '阿青', patrolDistance: 23, wildlifeCount: 12, image: 'https://images.unsplash.com/photo-1575550959106-5a7defe28b56?w=400' },
-  { id: '2', name: '沱沱河保护站', x: 350, y: 200, guardian: '扎西', patrolDistance: 18, wildlifeCount: 8, image: 'https://images.unsplash.com/photo-1564349683136-77e08dba1ef7?w=400' },
-  { id: '3', name: '索加保护站', x: 280, y: 280, guardian: '卓玛', patrolDistance: 32, wildlifeCount: 15, image: 'https://images.unsplash.com/photo-1618477461853-5f8dd68aa395?w=400' }
+  { id: '1', name: '可可西里不冻泉保护站', x: 200, y: 150, guardian: '阿青', patrolDistance: 23, wildlifeCount: 12, image: '/kkxl.png' },
+  { id: '2', name: '沱沱河保护站', x: 350, y: 200, guardian: '扎西', patrolDistance: 18, wildlifeCount: 8, image: '/zanglingyang-01.jpg' },
+  { id: '3', name: '索加保护站', x: 280, y: 280, guardian: '卓玛', patrolDistance: 32, wildlifeCount: 15, image: '/zanghu_01.jpg' }
 ])
 
 const speciesList = ref([
-  { id: '1', name: '雪豹', image: 'https://images.unsplash.com/photo-1575550959106-5a7defe28b56?w=200', rarity: 'rare' },
-  { id: '2', name: '藏羚羊', image: 'https://images.unsplash.com/photo-1564349683136-77e08dba1ef7?w=200', rarity: 'common' },
-  { id: '3', name: '藏狐', image: 'https://images.unsplash.com/photo-1618477461853-5f8dd68aa395?w=200', rarity: 'common' },
-  { id: '4', name: '兔狲', image: 'https://images.unsplash.com/photo-1575550959106-5a7defe28b56?w=200', rarity: 'rare' }
+  { id: '1', name: '雪豹', image: '/xuebao_01.jpg', rarity: 'rare' },
+  { id: '2', name: '藏羚羊', image: '/zanglingyang-01.jpg', rarity: 'common' },
+  { id: '3', name: '藏狐', image: '/zanghu_01.jpg', rarity: 'common' },
+  { id: '4', name: '兔狲', image: '/tusun_01.jpg', rarity: 'rare' }
 ])
 
 const donationChartRef = ref<HTMLCanvasElement | null>(null)
